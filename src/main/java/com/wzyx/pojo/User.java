@@ -1,59 +1,79 @@
 package com.wzyx.pojo;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
-public class User {
-    private Integer id;
+public class User implements Serializable {
+    private Integer userId;
 
-    private String username;
+    private String userName;
 
     private String password;
 
+    private String photo;
+
+    private Integer age;
+
+    private Integer gender;
+
+    private String phoneNumber;
+
+    private String qqNumber;
+
+    private String wechatNumber;
+
     private String email;
 
-    private String phone;
+    private Integer totalPoints;
 
-    private String question;
-
-    private String answer;
-
-    private Integer role;
+    private BigDecimal accountBalance;
 
     private Date createTime;
 
     private Date updateTime;
 
-    public User(Integer id, String username, String password, String email, String phone, String question, String answer, Integer role, Date createTime, Date updateTime) {
-        this.id = id;
-        this.username = username;
+    private Integer role;
+
+    private Integer status;
+
+    public User(Integer userId, String userName, String password, String photo, Integer age, Integer gender, String phoneNumber, String qqNumber, String wechatNumber, String email, Integer totalPoints, BigDecimal accountBalance, Date createTime, Date updateTime, Integer role, Integer status) {
+        this.userId = userId;
+        this.userName = userName;
         this.password = password;
+        this.photo = photo;
+        this.age = age;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.qqNumber = qqNumber;
+        this.wechatNumber = wechatNumber;
         this.email = email;
-        this.phone = phone;
-        this.question = question;
-        this.answer = answer;
-        this.role = role;
+        this.totalPoints = totalPoints;
+        this.accountBalance = accountBalance;
         this.createTime = createTime;
         this.updateTime = updateTime;
+        this.role = role;
+        this.status = status;
     }
 
     public User() {
         super();
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUsername(String username) {
-        this.username = username == null ? null : username.trim();
+    public void setUserName(String userName) {
+        this.userName = userName == null ? null : userName.trim();
     }
 
     public String getPassword() {
@@ -64,6 +84,54 @@ public class User {
         this.password = password == null ? null : password.trim();
     }
 
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo == null ? null : photo.trim();
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public Integer getGender() {
+        return gender;
+    }
+
+    public void setGender(Integer gender) {
+        this.gender = gender;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber == null ? null : phoneNumber.trim();
+    }
+
+    public String getQqNumber() {
+        return qqNumber;
+    }
+
+    public void setQqNumber(String qqNumber) {
+        this.qqNumber = qqNumber == null ? null : qqNumber.trim();
+    }
+
+    public String getWechatNumber() {
+        return wechatNumber;
+    }
+
+    public void setWechatNumber(String wechatNumber) {
+        this.wechatNumber = wechatNumber == null ? null : wechatNumber.trim();
+    }
+
     public String getEmail() {
         return email;
     }
@@ -72,36 +140,20 @@ public class User {
         this.email = email == null ? null : email.trim();
     }
 
-    public String getPhone() {
-        return phone;
+    public Integer getTotalPoints() {
+        return totalPoints;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone == null ? null : phone.trim();
+    public void setTotalPoints(Integer totalPoints) {
+        this.totalPoints = totalPoints;
     }
 
-    public String getQuestion() {
-        return question;
+    public BigDecimal getAccountBalance() {
+        return accountBalance;
     }
 
-    public void setQuestion(String question) {
-        this.question = question == null ? null : question.trim();
-    }
-
-    public String getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer == null ? null : answer.trim();
-    }
-
-    public Integer getRole() {
-        return role;
-    }
-
-    public void setRole(Integer role) {
-        this.role = role;
+    public void setAccountBalance(BigDecimal accountBalance) {
+        this.accountBalance = accountBalance;
     }
 
     public Date getCreateTime() {
@@ -118,5 +170,21 @@ public class User {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getRole() {
+        return role;
+    }
+
+    public void setRole(Integer role) {
+        this.role = role;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

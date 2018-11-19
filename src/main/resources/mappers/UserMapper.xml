@@ -3,67 +3,94 @@
 <mapper namespace="com.wzyx.dao.UserMapper" >
   <resultMap id="BaseResultMap" type="com.wzyx.pojo.User" >
     <constructor >
-      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="username" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <idArg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="user_name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="password" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="photo" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="age" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="gender" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="phone_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="qq_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="wechat_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="email" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="phone" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="question" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="answer" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="role" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="total_points" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="account_balance" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="role" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, username, password, email, phone, question, answer, role, create_time, update_time
+    user_id, user_name, password, photo, age, gender, phone_number, qq_number, wechat_number, 
+    email, total_points, account_balance, create_time, update_time, role, status
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
     from wzyx_user
-    where id = #{id,jdbcType=INTEGER}
+    where user_id = #{userId,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from wzyx_user
-    where id = #{id,jdbcType=INTEGER}
+    where user_id = #{userId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wzyx.pojo.User" >
-    insert into wzyx_user (id, username, password, 
-      email, phone, question, 
-      answer, role, create_time, 
-      update_time)
-    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
-      #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{question,jdbcType=VARCHAR}, 
-      #{answer,jdbcType=VARCHAR}, #{role,jdbcType=INTEGER}, now(),
-     now())
+-- 此处在插入语句中嵌入选择语句，表示在插入完成后，选择最新插入的主键ID，赋值给User的userId属性，类型为Integer
+  <selectKey resultType="integer"  order="AFTER" keyProperty="userId" >
+    select LAST_INSERT_ID()
+  </selectKey>
+    insert into wzyx_user (user_id, user_name, password, 
+      photo, age, gender, 
+      phone_number, qq_number, wechat_number, 
+      email, total_points, account_balance, 
+      create_time, update_time, role, 
+      status)
+    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{photo,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER}, #{gender,jdbcType=INTEGER}, 
+      #{phoneNumber,jdbcType=VARCHAR}, #{qqNumber,jdbcType=VARCHAR}, #{wechatNumber,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{totalPoints,jdbcType=INTEGER}, #{accountBalance,jdbcType=DECIMAL}, 
+      now(), now(), #{role,jdbcType=INTEGER},
+      #{status,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.wzyx.pojo.User" >
     insert into wzyx_user
     <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
+      <if test="userId != null" >
+        user_id,
       </if>
-      <if test="username != null" >
-        username,
+      <if test="userName != null" >
+        user_name,
       </if>
       <if test="password != null" >
         password,
       </if>
+      <if test="photo != null" >
+        photo,
+      </if>
+      <if test="age != null" >
+        age,
+      </if>
+      <if test="gender != null" >
+        gender,
+      </if>
+      <if test="phoneNumber != null" >
+        phone_number,
+      </if>
+      <if test="qqNumber != null" >
+        qq_number,
+      </if>
+      <if test="wechatNumber != null" >
+        wechat_number,
+      </if>
       <if test="email != null" >
         email,
       </if>
-      <if test="phone != null" >
-        phone,
+      <if test="totalPoints != null" >
+        total_points,
       </if>
-      <if test="question != null" >
-        question,
-      </if>
-      <if test="answer != null" >
-        answer,
-      </if>
-      <if test="role != null" >
-        role,
+      <if test="accountBalance != null" >
+        account_balance,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -71,31 +98,49 @@
       <if test="updateTime != null" >
         update_time,
       </if>
+      <if test="role != null" >
+        role,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
       </if>
-      <if test="username != null" >
-        #{username,jdbcType=VARCHAR},
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
       </if>
       <if test="password != null" >
         #{password,jdbcType=VARCHAR},
       </if>
+      <if test="photo != null" >
+        #{photo,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="gender != null" >
+        #{gender,jdbcType=INTEGER},
+      </if>
+      <if test="phoneNumber != null" >
+        #{phoneNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="qqNumber != null" >
+        #{qqNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatNumber != null" >
+        #{wechatNumber,jdbcType=VARCHAR},
+      </if>
       <if test="email != null" >
         #{email,jdbcType=VARCHAR},
       </if>
-      <if test="phone != null" >
-        #{phone,jdbcType=VARCHAR},
+      <if test="totalPoints != null" >
+        #{totalPoints,jdbcType=INTEGER},
       </if>
-      <if test="question != null" >
-        #{question,jdbcType=VARCHAR},
-      </if>
-      <if test="answer != null" >
-        #{answer,jdbcType=VARCHAR},
-      </if>
-      <if test="role != null" >
-        #{role,jdbcType=INTEGER},
+      <if test="accountBalance != null" >
+        #{accountBalance,jdbcType=DECIMAL},
       </if>
       <if test="createTime != null" >
         now(),
@@ -103,31 +148,49 @@
       <if test="updateTime != null" >
         now(),
       </if>
+      <if test="role != null" >
+        #{role,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.wzyx.pojo.User" >
     update wzyx_user
     <set >
-      <if test="username != null" >
-        username = #{username,jdbcType=VARCHAR},
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
       </if>
       <if test="password != null" >
         password = #{password,jdbcType=VARCHAR},
       </if>
+      <if test="photo != null" >
+        photo = #{photo,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="gender != null" >
+        gender = #{gender,jdbcType=INTEGER},
+      </if>
+      <if test="phoneNumber != null" >
+        phone_number = #{phoneNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="qqNumber != null" >
+        qq_number = #{qqNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatNumber != null" >
+        wechat_number = #{wechatNumber,jdbcType=VARCHAR},
+      </if>
       <if test="email != null" >
         email = #{email,jdbcType=VARCHAR},
       </if>
-      <if test="phone != null" >
-        phone = #{phone,jdbcType=VARCHAR},
+      <if test="totalPoints != null" >
+        total_points = #{totalPoints,jdbcType=INTEGER},
       </if>
-      <if test="question != null" >
-        question = #{question,jdbcType=VARCHAR},
-      </if>
-      <if test="answer != null" >
-        answer = #{answer,jdbcType=VARCHAR},
-      </if>
-      <if test="role != null" >
-        role = #{role,jdbcType=INTEGER},
+      <if test="accountBalance != null" >
+        account_balance = #{accountBalance,jdbcType=DECIMAL},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -135,20 +198,49 @@
       <if test="updateTime != null" >
         update_time = now(),
       </if>
+      <if test="role != null" >
+        role = #{role,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where user_id = #{userId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wzyx.pojo.User" >
     update wzyx_user
-    set username = #{username,jdbcType=VARCHAR},
+    set user_name = #{userName,jdbcType=VARCHAR},
       password = #{password,jdbcType=VARCHAR},
+      photo = #{photo,jdbcType=VARCHAR},
+      age = #{age,jdbcType=INTEGER},
+      gender = #{gender,jdbcType=INTEGER},
+      phone_number = #{phoneNumber,jdbcType=VARCHAR},
+      qq_number = #{qqNumber,jdbcType=VARCHAR},
+      wechat_number = #{wechatNumber,jdbcType=VARCHAR},
       email = #{email,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR},
-      question = #{question,jdbcType=VARCHAR},
-      answer = #{answer,jdbcType=VARCHAR},
-      role = #{role,jdbcType=INTEGER},
+      total_points = #{totalPoints,jdbcType=INTEGER},
+      account_balance = #{accountBalance,jdbcType=DECIMAL},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = now()
-    where id = #{id,jdbcType=INTEGER}
+      update_time = now(),
+      role = #{role,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER}
+    where user_id = #{userId,jdbcType=INTEGER}
   </update>
+
+
+
+  <select id="login" resultMap="BaseResultMap" parameterType="map">
+    select <include refid="Base_Column_List"/>
+    from wzyx_user
+    where phone_number = #{phoneNumber}
+      and password = #{password}
+  </select>
+
+    <select id="selectByPhoneNumber" resultMap="BaseResultMap" parameterType="map">
+        select <include refid="Base_Column_List"/>
+        from wzyx_user
+        where phone_number = #{phoneNumber}
+    </select>
+
+
 </mapper>
