@@ -227,7 +227,7 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </update>
 
-
+<!--上面的SQL为逆向工程生成， 下面的代码为业务需要新增的-->
 
   <select id="login" resultMap="BaseResultMap" parameterType="map">
     select <include refid="Base_Column_List"/>
@@ -243,4 +243,56 @@
     </select>
 
 
+  <update id="resetPassword" parameterType="map">
+    update wzyx_user
+    set password = #{newPassword}
+    where user_id = #{userId}
+    and password =#{oldPassword}
+  </update>
+
+
+    <update id="forgetResetPassword" parameterType="map" >
+        update wzyx_user
+        set password = #{newPassword}
+        where phoneNumber = #{phoneNumber}
+    </update>
+
+
+    <select id="getUserList" parameterType="map" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from wzyx_user
+        <where>
+            <if test="userType != null">
+                role = #{userType}
+            </if>
+            <if test="userStatus != null">
+                and status = #{userStatus}
+            </if>
+        </where>
+    </select>
+
+
 </mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

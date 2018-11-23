@@ -1,5 +1,7 @@
 package com.wzyx.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.wzyx.common.ServerResponse;
 import com.wzyx.common.enumration.RedisExpireTime;
 import com.wzyx.common.enumration.Role;
@@ -10,9 +12,12 @@ import com.wzyx.service.IUserService;
 import com.wzyx.util.JsonUtil;
 import com.wzyx.util.MD5Utils;
 import com.wzyx.util.RedisPoolUtil;
+import com.wzyx.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 @Service("iUserService")
@@ -25,24 +30,32 @@ public class UserService implements IUserService {
     /**
      * 完成用户登录，登录失败返回失败原因
      * 登陆成功，返回用户信息和authToken，并且将用户信息放到Redis数据库中保持登陆状态
-     * @param phoneNumber
-     * @param password
+     * @param phoneNumber 登录账号的手机号
+     * @param password    登录账号的密码
+     * @param role        要登录的账号的角色
      * @return
      */
     @Override
-    public ServerResponse login(String phoneNumber, String password) {
+    public ServerResponse login(String phoneNumber, String password, Integer role) {
         User user = null;
-        password = MD5Utils.MD5EncodeUtf8(password);
         user = userMapper.login(phoneNumber, password);
         if (user == null) {
             // 数据库中没有该用户, 进一步判断是手机号不存在还是密码错误
             user = userMapper.selectByPhoneNumber(phoneNumber);
             if (user != null) {
                 //密码错误
-                return ServerResponse.createByErrorMessage("password is wrong");
+                return ServerResponse.createByErrorMessage("密码错误");
             }
-            return ServerResponse.createByErrorMessage("phoneNumber doesn't exist");
+            return ServerResponse.createByErrorMessage("手机号不存在");
         }
+//      验证要登录的用户的角色是否合法，该用户的角色由Controller层决定
+        if (role != user.getRole()) {
+            return ServerResponse.createByErrorMessage("要登录的用户没有权限");
+        }
+        if (user.getStatus() != RoleStatus.CHECKED.getCode()) {
+            return ServerResponse.createByErrorMessage("该用户暂时没有登录权限");
+        }
+//
         //返回用户信息给前端前，置空密码, 生成随机的AUTH_TOKEN,将用户信息Json序列化，存入到Redis缓存中
         user.setPassword(null);
         String authToken = UUID.randomUUID().toString();
@@ -98,6 +111,177 @@ public class UserService implements IUserService {
         return ServerResponse.createByErrorMessage("当前手机号已经注册，请直接登录");
     }
 
+    /**
+     * 检查所给的手机号是否已经注册
+     * @param phoneNumber
+     * @return
+     */
+    @Override
+    public ServerResponse checkValid(String phoneNumber) {
+        User user = null;
+        user = userMapper.selectByPhoneNumber(phoneNumber);
+        if (user == null) {
+            return ServerResponse.createByErrorMessage("该手机号已经存在，请直接登录");
+        }
+        return ServerResponse.createBySuccessMessage("手机号未注册，请直接注册");
+    }
+
+    /**
+     * 更新个人信息
+     * @param user
+     * @return
+     */
+    @Override
+    public ServerResponse updateInformation(User user) {
+        int count = 0;
+        count = userMapper.updateByPrimaryKeySelective(user);
+        if (count == 0) {
+            return ServerResponse.createByErrorMessage("更新个人信息失败");
+        }
+        return ServerResponse.createBySuccessMessage("更新个人信息成功");
+    }
+
+    /**
+     * 更新个人的密码， 这时用户在知道
+     * @param userId  用户Id，主键
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @return
+     */
+    @Override
+    public ServerResponse resetPassword(Integer userId, String oldPassword, String newPassword) {
+        User user = new User();
+        user.setUserId(userId);
+        user.setPassword(oldPassword);
+        int count = 0;
+        count = userMapper.resetPassword(userId, oldPassword, newPassword);
+        if (count == 0) {
+            return ServerResponse.createByErrorMessage("修改密码失败");
+        }
+        return ServerResponse.createBySuccessMessage("修改密码成功");
+    }
+
+    /**
+     * 用户通过手机号+验证码的方式来修改密码。 这个方法不需要旧密码，只需要手机号就可以了
+     * @param phoneNumber
+     * @param newPassword
+     * @return
+     */
+    @Override
+    public ServerResponse forgetResetPassword(String phoneNumber, String newPassword) {
+        int count = 0;
+        count = userMapper.forgetResetPassword(phoneNumber, newPassword);
+        if (count == 0) {
+//            更新的行数为0，修改表失败，返回修改密码错误的信息
+            return ServerResponse.createByErrorMessage("修改密码信息失败");
+        }
+        return ServerResponse.createBySuccessMessage("修改密码信息成功");
+    }
+
+    /**
+     * 查询特定类型的用户类型的用户信息, 这里使用了分页插件PageHelper，使用逻辑如下
+     *         //startPage--start
+     *         //填充自己的sql查询逻辑
+     *         //pageInfo-收尾
+     * @param userType  要查询的用户的类型 0-普通用户， 1-商家， 2- 管理员
+     * @param userStatus 要查询的用户的状态
+     * @param pageNumber 要查询的页数
+     * @param pageSize 每页的大小
+     * @return
+     */
+    @Override
+    public ServerResponse getUserList(Integer userType, Integer userStatus, Integer pageNumber, Integer pageSize) {
+        PageHelper.startPage(pageNumber, pageSize);
+        List<User> userList = userMapper.getUserList(userType, userStatus);
+        PageInfo pageInfo = new PageInfo(userList);
+//        将查询结果封装成视图层对象
+        List<UserVo> voList = assembleUserVoList(userList);
+        pageInfo.setList(voList);
+        return ServerResponse.createBySuccessData(pageInfo);
+    }
+
+    /**
+     * 更新用户的状态
+     * @param userId  用户ID
+     * @param userStatus 用户状态
+     * @return
+     */
+    @Override
+    public ServerResponse updateUserStatus(Integer userId, Integer userStatus) {
+        int count = 0;
+        User user = new User();
+        user.setUserId(userId);
+        user.setStatus(userStatus);
+        count = userMapper.updateByPrimaryKeySelective(user);
+        if (count == 0) {
+            return ServerResponse.createByErrorMessage("更新用户状态失败");
+        }
+        return ServerResponse.createBySuccessMessage("更新用户状态成功");
+    }
+
+    /**
+     * 管理员通过此接口，完成增加新用户的功能
+     * @param user
+     * @return
+     */
+    @Override
+    public ServerResponse addUser(User user) {
+        String phoneNumber = user.getPhoneNumber();
+        User temUser = userMapper.selectByPhoneNumber(phoneNumber);
+        if (temUser == null) {
+//            手机号不存在，可以添加
+            int count = userMapper.insert(user);
+            if(count == 0) {
+                return ServerResponse.createByErrorMessage("添加用户失败");
+            }
+            return ServerResponse.createBySuccessMessage("添加用户成功");
+        }
+        return ServerResponse.createByErrorMessage("手机号已经存在，添加用户失败");
+    }
+
+    @Override
+    public ServerResponse getUserByPhoneNumber(String phoneNumber) {
+        User user = userMapper.selectByPhoneNumber(phoneNumber);
+        if (user == null) {
+            return ServerResponse.createByErrorMessage("查询用户信息失败");
+        }
+        return ServerResponse.createBySuccessData(assembleUserVo(user));
+    }
+
+    /**
+     * 将 User对象封装成UserVo对象的工具方法
+     * @param users
+     * @return
+     */
+    private List<UserVo> assembleUserVoList(List<User> users) {
+        List<UserVo> voList = new LinkedList<>();
+        if (users == null) {
+            return voList;
+        }
+        for (User user : users) {
+            voList.add(assembleUserVo(user));
+        }
+        return voList;
+    }
+
+    /**
+     * 将 User对象封装成UserVo对象的工具方法
+     * @param user
+     * @return
+     */
+    private UserVo assembleUserVo(User user) {
+        UserVo userVo = new UserVo();
+        userVo.setUserId(user.getUserId());
+        userVo.setUserName(user.getUserName());
+        userVo.setPhoneNumber(user.getPhoneNumber());
+        userVo.setAccountBalance(user.getAccountBalance());
+        userVo.setCreateTime(user.getCreateTime());
+        userVo.setUpdateTime(user.getUpdateTime());
+        userVo.setGender(user.getGender());
+        userVo.setRole(user.getRole());
+        userVo.setStatus(user.getStatus());
+        return userVo;
+    }
 
 }
 

@@ -4,6 +4,7 @@ import java.util.Random;
 
 /**
  * 验证码的工具类，用来生成和发送验证码，依赖SMSUtil
+ *
  */
 public class VerificationCodeUtil {
     private static Random random = new Random(17);// 随机数生成类，用来生成随机验证码

@@ -6,8 +6,8 @@ package com.wzyx.common.enumration;
 public enum ResponseCode {
     SUCCESS(0, "SUCCESS"),
     ERROR(1,"ERROR"),
-    NEED_LOGIN(2,"NEED_LOGIN"),
-    ILLEGAL_ARGUMENT(3,"ILLEGAL_ARGUEMNT");
+    NEED_LOGIN(2,"当前用户未登录，请登录后再进行操作"),
+    ILLEGAL_ARGUMENT(3,"输入参数非法");
 
     private final int code;
     private final String desc;

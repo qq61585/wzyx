@@ -5,9 +5,9 @@ package com.wzyx.common.enumration;
  */
 public enum Role {
 
-    USER(0, "普通用户"),
-    SELLER(1, "商家"),
-    ADMIN(2, "平台管理员");
+    USER(0, "USER"),//普通用户
+    SELLER(1, "SELLER"), //商家
+    ADMIN(2, "ADMIN"); // 管理员
 
     private int code;
     private  String desc;

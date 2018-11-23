@@ -5,7 +5,10 @@ import com.wzyx.common.ServerResponse;
 import com.wzyx.common.enumration.RedisExpireTime;
 import com.wzyx.common.enumration.ResponseCode;
 import com.wzyx.common.enumration.Role;
+import com.wzyx.pojo.User;
 import com.wzyx.service.IUserService;
+import com.wzyx.util.JsonUtil;
+import com.wzyx.util.MD5Utils;
 import com.wzyx.util.RedisPoolUtil;
 import com.wzyx.util.VerificationCodeUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +31,7 @@ public class UserController {
      * @param phoneNumber
      * @return
      */
-    @RequestMapping(value = "sendVerificationCode", method = RequestMethod.POST)
+    @RequestMapping(value = "sendVerificationCode")
     @ResponseBody
     public ServerResponse sendVerificationCode(String phoneNumber) {
         if (StringUtils.isBlank(phoneNumber)) {
@@ -47,14 +50,14 @@ public class UserController {
      * @param verificationCode  验证码
      * @return
      */
-    @RequestMapping(value = "register", method = RequestMethod.POST)
+    @RequestMapping(value = "register")
     @ResponseBody
     public ServerResponse register(String phoneNumber, String password, String verificationCode) {
         if (StringUtils.isBlank(phoneNumber) || StringUtils.isBlank(password) || StringUtils.isBlank(verificationCode)) {
 //          提供的注册信息为空，或者提供的角色信息不是普通用户，返回非法参数
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
-        return userService.register(phoneNumber, password, Role.USER.getCode(), verificationCode);
+        return userService.register(phoneNumber, MD5Utils.MD5EncodeUtf8(password), Role.USER.getCode(), verificationCode);
     }
 
     /**
@@ -63,14 +66,14 @@ public class UserController {
      * @param password
      * @return
      */
-    @RequestMapping(value = "login", method = RequestMethod.POST)
+    @RequestMapping(value = "login")
     @ResponseBody
     public ServerResponse login(String phoneNumber, String password) {
         if (StringUtils.isBlank(phoneNumber) || StringUtils.isBlank(password)) {
 //            输入参数为空，返回非法参数
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
-        return userService.login(phoneNumber, password);
+        return userService.login(phoneNumber, MD5Utils.MD5EncodeUtf8(password), Role.USER.getCode());
     }
 
     /**
@@ -78,7 +81,7 @@ public class UserController {
      * @param authToken
      * @return
      */
-    @RequestMapping(value = "logout", method = RequestMethod.POST)
+    @RequestMapping(value = "logout")
     @ResponseBody
     public ServerResponse logout(String authToken) {
         if (StringUtils.isBlank(authToken)) {
@@ -89,6 +92,116 @@ public class UserController {
         RedisPoolUtil.del(authToken);
         return ServerResponse.createBySuccessMessage("logout success");
     }
+
+
+    /**
+     * 检查要注册的手机号是否已经注册
+     * @param phoneNumber
+     * @return
+     */
+    @RequestMapping(value = "check_valid", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse checkValid(String phoneNumber) {
+        if (StringUtils.isBlank(phoneNumber)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        return userService.checkValid(phoneNumber);
+    }
+
+
+    /**
+     * 更新个人的信息， 需要进行登录验证。横向越权，防止修改别人的信息。
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "update_information")
+    @ResponseBody
+    public ServerResponse updateInformation(User user, String authToken) {
+//        首先进行权限验证，和是否登录的验证
+        if (user == null || StringUtils.isBlank(authToken)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        String userString = RedisPoolUtil.get(authToken);
+        if (userString == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+//      检查要修改的信息是否是当前用户的
+        User currentUser = JsonUtil.str2Object(userString, User.class);
+        if (!currentUser.getPhoneNumber().equals(user.getPhoneNumber())) {
+            return ServerResponse.createByErrorMessage("要修改的信息非法");
+        }
+//        要修改的信息是当前用户的,设置角色，避免恶意更改
+        user.setRole(Role.USER.getCode());
+        return userService.updateInformation(user);
+    }
+
+    /**
+     * 通过token来获取用户信息, 使用前检查用户是否登录
+     * @param authToken
+     * @return
+     */
+    @RequestMapping(value = "get_information", method = RequestMethod.POST)
+    public ServerResponse getInformation(String authToken) {
+        if (StringUtils.isBlank(authToken)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        String userString = RedisPoolUtil.get(authToken);
+        if (StringUtils.isBlank(userString)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+//        用户已经登录，返回个人信息
+        User user = JsonUtil.str2Object(userString, User.class);
+        return ServerResponse.createBySuccessData(user);
+    }
+
+    /**
+     * 在用户知道原始密码的情况下更改密码
+     * @param authToken  用户的token
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @return
+     */
+    @RequestMapping(value = "reset_password", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse resetPassword(String authToken, String oldPassword,
+                                        String newPassword) {
+        if (StringUtils.isBlank(authToken) || StringUtils.isBlank(oldPassword) || StringUtils.isBlank(newPassword)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        String userString = RedisPoolUtil.get(authToken);
+        if (StringUtils.isBlank(userString)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+//        用户已经登录，并且要修改的信息有效，不为空。调用业务层来修改密码
+        User user = JsonUtil.str2Object(userString, User.class);
+        return userService.resetPassword(user.getUserId(), MD5Utils.MD5EncodeUtf8(oldPassword), MD5Utils.MD5EncodeUtf8(newPassword));
+    }
+
+    /**
+     * 用户忘记了自己的旧密码，通过手机验证码的方式来修改新的密码。 调用此接口前先调用发送验证码的接口
+     * 方法先验证要修改的用户的手机号和 验证码是否匹配，匹配的进行密码修改
+     * @param phoneNumber
+     * @param newPassword
+     * @param verificationCode
+     * @return
+     */
+    @RequestMapping(value = "forgetResetPassword", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse forgetResetPassword(String phoneNumber, String newPassword, String verificationCode) {
+        if (StringUtils.isBlank(phoneNumber) || StringUtils.isBlank(newPassword) || StringUtils.isBlank(verificationCode)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+//        方法的参数有效（不为空）
+        String redisVerificationCode = RedisPoolUtil.get(phoneNumber);
+        if (!StringUtils.isBlank(redisVerificationCode) && redisVerificationCode.equals(verificationCode)) {
+//            Redis数据库中有验证码的缓存，并且该手机号和缓存的验证码匹配,进行密码的修改
+            return userService.forgetResetPassword(phoneNumber, MD5Utils.MD5EncodeUtf8(newPassword));
+
+        }
+//        验证码不匹配
+        return ServerResponse.createByErrorMessage("验证码填写错误");
+    }
+
 
 
 
