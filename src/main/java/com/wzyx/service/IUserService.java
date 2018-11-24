@@ -2,6 +2,7 @@ package com.wzyx.service;
 
 import com.wzyx.common.ServerResponse;
 import com.wzyx.pojo.User;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface IUserService {
@@ -27,4 +28,6 @@ public interface IUserService {
     ServerResponse addUser(User user);
 
     ServerResponse getUserByPhoneNumber(String phoneNumber);
+
+    ServerResponse updatePhoto(Integer userId, MultipartFile file, String path);
 }

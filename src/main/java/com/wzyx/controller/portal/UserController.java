@@ -17,6 +17,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 @Controller
@@ -202,6 +205,21 @@ public class UserController {
         return ServerResponse.createByErrorMessage("验证码填写错误");
     }
 
+
+    @RequestMapping(value = "update_photo", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse updatePhoto(HttpServletRequest request, MultipartFile file) {
+/*            if (StringUtils.isBlank(authToken)) {
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+            }
+            String userString = RedisPoolUtil.get(authToken);
+            if (StringUtils.isBlank(userString)) {
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+            }*/
+//            User user = JsonUtil.str2Object(userString, User.class);
+            String path = request.getServletContext().getRealPath("img");
+            return userService.updatePhoto(53, file, path);
+    }
 
 
 

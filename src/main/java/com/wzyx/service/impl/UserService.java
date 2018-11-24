@@ -3,19 +3,25 @@ package com.wzyx.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wzyx.common.ServerResponse;
+import com.wzyx.common.enumration.FTPPath;
 import com.wzyx.common.enumration.RedisExpireTime;
 import com.wzyx.common.enumration.Role;
 import com.wzyx.common.enumration.RoleStatus;
 import com.wzyx.dao.UserMapper;
 import com.wzyx.pojo.User;
+import com.wzyx.service.IFileService;
 import com.wzyx.service.IUserService;
 import com.wzyx.util.JsonUtil;
 import com.wzyx.util.MD5Utils;
+import com.wzyx.util.PropertiesUtil;
 import com.wzyx.util.RedisPoolUtil;
 import com.wzyx.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +32,9 @@ public class UserService implements IUserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private IFileService fileService;
 
     /**
      * 完成用户登录，登录失败返回失败原因
@@ -246,6 +255,21 @@ public class UserService implements IUserService {
             return ServerResponse.createByErrorMessage("查询用户信息失败");
         }
         return ServerResponse.createBySuccessData(assembleUserVo(user));
+    }
+
+    @Override
+    public ServerResponse updatePhoto(Integer userId, MultipartFile file, String path) {
+        String result = fileService.uploadFile(file, path);
+        if (result == null) {
+            return ServerResponse.createByErrorMessage("更新图片失败");
+        }
+//        上传图片成功，并且返回了图片的名称，在数据库中进行更新
+        User user = new User();
+        user.setUserId(userId);
+        user.setPhoto(result);
+        user.setUpdateTime(new Date());
+        userMapper.updateByPrimaryKeySelective(user);
+        return ServerResponse.createBySuccessMessage(PropertiesUtil.getProperty("ftp.server.ftp.prefix") + File.separator + result);
     }
 
     /**
