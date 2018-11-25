@@ -147,7 +147,7 @@ public class UserService implements IUserService {
         if (count == 0) {
             return ServerResponse.createByErrorMessage("更新个人信息失败");
         }
-        return ServerResponse.createBySuccessMessage("更新个人信息成功");
+        return ServerResponse.createBySuccess("更新个人信息成功", user);
     }
 
     /**
@@ -266,10 +266,11 @@ public class UserService implements IUserService {
 //        上传图片成功，并且返回了图片的名称，在数据库中进行更新
         User user = new User();
         user.setUserId(userId);
+        String filePath = PropertiesUtil.getProperty("ftp.server.ftp.prefix") + File.separator + result;
         user.setPhoto(result);
         user.setUpdateTime(new Date());
         userMapper.updateByPrimaryKeySelective(user);
-        return ServerResponse.createBySuccessMessage(PropertiesUtil.getProperty("ftp.server.ftp.prefix") + File.separator + result);
+        return ServerResponse.createBySuccessMessage(filePath);
     }
 
     /**

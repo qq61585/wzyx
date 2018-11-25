@@ -130,11 +130,15 @@ public class UserController {
         }
 //      检查要修改的信息是否是当前用户的
         User currentUser = JsonUtil.str2Object(userString, User.class);
-        if (!currentUser.getPhoneNumber().equals(user.getPhoneNumber())) {
+/*        if (!currentUser.getPhoneNumber().equals(user.getPhoneNumber())) {
             return ServerResponse.createByErrorMessage("要修改的信息非法");
-        }
-//        要修改的信息是当前用户的,设置角色，避免恶意更改
+        }*/
+//        要修改的信息是当前用户的,设置角色，等不允许被修改的字段信息，防止恶意修改。
         user.setRole(Role.USER.getCode());
+        user.setUserId(currentUser.getUserId());
+        user.setStatus(currentUser.getStatus());
+        user.setPhoneNumber(currentUser.getPhoneNumber());
+        user.setAccountBalance(currentUser.getAccountBalance());
         return userService.updateInformation(user);
     }
 
@@ -144,6 +148,7 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "get_information", method = RequestMethod.POST)
+    @ResponseBody
     public ServerResponse getInformation(String authToken) {
         if (StringUtils.isBlank(authToken)) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
@@ -188,7 +193,7 @@ public class UserController {
      * @param verificationCode
      * @return
      */
-    @RequestMapping(value = "forgetResetPassword", method = RequestMethod.POST)
+    @RequestMapping(value = "forget_reset_password", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse forgetResetPassword(String phoneNumber, String newPassword, String verificationCode) {
         if (StringUtils.isBlank(phoneNumber) || StringUtils.isBlank(newPassword) || StringUtils.isBlank(verificationCode)) {
@@ -208,17 +213,17 @@ public class UserController {
 
     @RequestMapping(value = "update_photo", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse updatePhoto(HttpServletRequest request, MultipartFile file) {
-/*            if (StringUtils.isBlank(authToken)) {
+    public ServerResponse updatePhoto(HttpServletRequest request, MultipartFile file, String authToken) {
+            if (StringUtils.isBlank(authToken)) {
                 return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
             }
             String userString = RedisPoolUtil.get(authToken);
             if (StringUtils.isBlank(userString)) {
                 return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
-            }*/
-//            User user = JsonUtil.str2Object(userString, User.class);
+            }
+            User user = JsonUtil.str2Object(userString, User.class);
             String path = request.getServletContext().getRealPath("img");
-            return userService.updatePhoto(53, file, path);
+            return userService.updatePhoto(user.getUserId(), file, path);
     }
 
 

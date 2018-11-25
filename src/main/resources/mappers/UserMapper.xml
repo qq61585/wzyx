@@ -254,7 +254,7 @@
     <update id="forgetResetPassword" parameterType="map" >
         update wzyx_user
         set password = #{newPassword}
-        where phoneNumber = #{phoneNumber}
+        where phone_number = #{phoneNumber}
     </update>
 
 
