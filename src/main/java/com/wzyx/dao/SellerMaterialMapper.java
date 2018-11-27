@@ -1,6 +1,9 @@
 package com.wzyx.dao;
 
 import com.wzyx.pojo.SellerMaterial;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface SellerMaterialMapper {
     int deleteByPrimaryKey(Integer sellerMaterialId);
@@ -14,4 +17,6 @@ public interface SellerMaterialMapper {
     int updateByPrimaryKeySelective(SellerMaterial record);
 
     int updateByPrimaryKey(SellerMaterial record);
+
+    List<SellerMaterial> selectBySellerId(@Param("sellerId") String sellerId);
 }

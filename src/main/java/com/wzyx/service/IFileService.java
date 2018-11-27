@@ -11,4 +11,6 @@ public interface IFileService {
 
     String uploadFile(MultipartFile file, String path);
 
+    String[] uploadFiles(MultipartFile[] file, String path);
+
 }

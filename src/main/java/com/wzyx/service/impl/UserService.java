@@ -3,16 +3,16 @@ package com.wzyx.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wzyx.common.ServerResponse;
-import com.wzyx.common.enumration.FTPPath;
 import com.wzyx.common.enumration.RedisExpireTime;
 import com.wzyx.common.enumration.Role;
 import com.wzyx.common.enumration.RoleStatus;
+import com.wzyx.dao.SellerMaterialMapper;
 import com.wzyx.dao.UserMapper;
+import com.wzyx.pojo.SellerMaterial;
 import com.wzyx.pojo.User;
 import com.wzyx.service.IFileService;
 import com.wzyx.service.IUserService;
 import com.wzyx.util.JsonUtil;
-import com.wzyx.util.MD5Utils;
 import com.wzyx.util.PropertiesUtil;
 import com.wzyx.util.RedisPoolUtil;
 import com.wzyx.vo.UserVo;
@@ -32,6 +32,7 @@ public class UserService implements IUserService {
 
     @Autowired
     private UserMapper userMapper;
+
 
     @Autowired
     private IFileService fileService;
@@ -95,7 +96,6 @@ public class UserService implements IUserService {
         if (user == null) {
 //            当前手机号还没有注册,添加手机号、密码、角色、是否审核等信息，普通用户默认已经审核，商家默认待审核
             user = new User();
-            password = MD5Utils.MD5EncodeUtf8(password);
             user.setPassword(password);
             user.setPhoneNumber(phoneNumber);
             if (role == Role.USER.getCode()) {
@@ -108,7 +108,7 @@ public class UserService implements IUserService {
                 user.setStatus(RoleStatus.UNCHECKED.getCode());
             }
 //            向表中插入数据
-            int count = userMapper.insert(user);
+            int count = userMapper.insertSelective(user);
             if (count == 0) {
                 //生效行数为0 表示插入失败
                 return ServerResponse.createByErrorMessage("服务器发生异常，请稍后再试");
@@ -257,6 +257,13 @@ public class UserService implements IUserService {
         return ServerResponse.createBySuccessData(assembleUserVo(user));
     }
 
+    /**
+     * 更新用户的头像
+     * @param userId 要更新的用户的主键
+     * @param file   图片文件
+     * @param path   Tomcat本地暂时缓存图片文件的路径
+     * @return
+     */
     @Override
     public ServerResponse updatePhoto(Integer userId, MultipartFile file, String path) {
         String result = fileService.uploadFile(file, path);
@@ -272,6 +279,7 @@ public class UserService implements IUserService {
         userMapper.updateByPrimaryKeySelective(user);
         return ServerResponse.createBySuccessMessage(filePath);
     }
+
 
     /**
      * 将 User对象封装成UserVo对象的工具方法

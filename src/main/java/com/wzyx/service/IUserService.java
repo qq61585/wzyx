@@ -30,4 +30,6 @@ public interface IUserService {
     ServerResponse getUserByPhoneNumber(String phoneNumber);
 
     ServerResponse updatePhoto(Integer userId, MultipartFile file, String path);
+
+
 }

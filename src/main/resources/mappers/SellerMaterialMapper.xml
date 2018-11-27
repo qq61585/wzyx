@@ -6,7 +6,7 @@
       <idArg column="seller_material_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="admin_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="seller_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="phone_number" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="phone_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="real_name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="identity_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="identity_card_front_photo" jdbcType="VARCHAR" javaType="java.lang.String" />
@@ -34,20 +34,30 @@
     where seller_material_id = #{sellerMaterialId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wzyx.pojo.SellerMaterial" >
-    insert into wzyx_seller_material (seller_material_id, admin_id, seller_id, 
+  <selectKey resultType="integer" keyProperty="sellerMaterialId" order="AFTER">
+    select LAST_INSERT_ID()
+  </selectKey>
+
+
+    insert into wzyx_seller_material (admin_id, seller_id,
       phone_number, real_name, identity_number, 
       identity_card_front_photo, identity_card_back_photo, 
       business_license_number, business_license_photo, 
       status, create_time, update_time
       )
-    values (#{sellerMaterialId,jdbcType=INTEGER}, #{adminId,jdbcType=INTEGER}, #{sellerId,jdbcType=INTEGER}, 
-      #{phoneNumber,jdbcType=INTEGER}, #{realName,jdbcType=VARCHAR}, #{identityNumber,jdbcType=VARCHAR}, 
+    values (#{adminId,jdbcType=INTEGER}, #{sellerId,jdbcType=INTEGER},
+      #{phoneNumber,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR}, #{identityNumber,jdbcType=VARCHAR}, 
       #{identityCardFrontPhoto,jdbcType=VARCHAR}, #{identityCardBackPhoto,jdbcType=VARCHAR}, 
       #{businessLicenseNumber,jdbcType=VARCHAR}, #{businessLicensePhoto,jdbcType=VARCHAR}, 
-      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      #{status,jdbcType=INTEGER}, now(), now())}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wzyx.pojo.SellerMaterial" >
+
+    <selectKey resultType="integer" keyProperty="sellerMaterialId" order="AFTER">
+      select LAST_INSERT_ID()
+    </selectKey>
+
     insert into wzyx_seller_material
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="sellerMaterialId != null" >
@@ -83,10 +93,10 @@
       <if test="status != null" >
         status,
       </if>
-      <if test="createTime != null" >
+      <if test="true" >
         create_time,
       </if>
-      <if test="updateTime != null" >
+      <if test="true" >
         update_time,
       </if>
     </trim>
@@ -101,7 +111,7 @@
         #{sellerId,jdbcType=INTEGER},
       </if>
       <if test="phoneNumber != null" >
-        #{phoneNumber,jdbcType=INTEGER},
+        #{phoneNumber,jdbcType=VARCHAR},
       </if>
       <if test="realName != null" >
         #{realName,jdbcType=VARCHAR},
@@ -124,11 +134,11 @@
       <if test="status != null" >
         #{status,jdbcType=INTEGER},
       </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
+      <if test="true" >
+        now(),
       </if>
-      <if test="updateTime != null" >
-        #{updateTime,jdbcType=TIMESTAMP},
+      <if test="true" >
+        now(),
       </if>
     </trim>
   </insert>
@@ -142,7 +152,7 @@
         seller_id = #{sellerId,jdbcType=INTEGER},
       </if>
       <if test="phoneNumber != null" >
-        phone_number = #{phoneNumber,jdbcType=INTEGER},
+        phone_number = #{phoneNumber,jdbcType=VARCHAR},
       </if>
       <if test="realName != null" >
         real_name = #{realName,jdbcType=VARCHAR},
@@ -169,7 +179,7 @@
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null" >
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
+        update_time = now(),
       </if>
     </set>
     where seller_material_id = #{sellerMaterialId,jdbcType=INTEGER}
@@ -178,7 +188,7 @@
     update wzyx_seller_material
     set admin_id = #{adminId,jdbcType=INTEGER},
       seller_id = #{sellerId,jdbcType=INTEGER},
-      phone_number = #{phoneNumber,jdbcType=INTEGER},
+      phone_number = #{phoneNumber,jdbcType=VARCHAR},
       real_name = #{realName,jdbcType=VARCHAR},
       identity_number = #{identityNumber,jdbcType=VARCHAR},
       identity_card_front_photo = #{identityCardFrontPhoto,jdbcType=VARCHAR},
@@ -190,4 +200,12 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where seller_material_id = #{sellerMaterialId,jdbcType=INTEGER}
   </update>
+
+  <select id="selectBySellerId" resultMap="BaseResultMap" parameterType="map">
+    select <include refid="Base_Column_List"/>
+    from wzyx_seller_material
+      where seller_id = #{sellerId}
+      order by create_time
+  </select>
+
 </mapper>

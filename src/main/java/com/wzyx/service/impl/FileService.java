@@ -46,4 +46,30 @@ public class FileService implements IFileService {
         targetFile.delete();
         return targetFile.getName();
     }
+
+    /**
+     * 上传多个文件，并且以string[]的格式返回他们的文件名
+     * @param files
+     * @param path
+     * @return
+     */
+    @Override
+    public String[] uploadFiles(MultipartFile[] files, String path) {
+
+        String[] fileNames = new String[files.length];
+        int i = 0;
+        for (MultipartFile file : files) {
+            fileNames[i++] = uploadFile(file, path);
+        }
+        return fileNames;
+    }
 }
+
+
+
+
+
+
+
+
+

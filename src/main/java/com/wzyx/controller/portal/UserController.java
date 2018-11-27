@@ -210,7 +210,6 @@ public class UserController {
         return ServerResponse.createByErrorMessage("验证码填写错误");
     }
 
-
     @RequestMapping(value = "update_photo", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse updatePhoto(HttpServletRequest request, MultipartFile file, String authToken) {

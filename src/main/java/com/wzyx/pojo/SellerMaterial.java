@@ -1,19 +1,15 @@
 package com.wzyx.pojo;
 
-import java.io.Serializable;
 import java.util.Date;
 
-/**
- * 映射商家审核材料的pojo类
- */
-public class SellerMaterial implements Serializable {
+public class SellerMaterial {
     private Integer sellerMaterialId;
 
     private Integer adminId;
 
     private Integer sellerId;
 
-    private Integer phoneNumber;
+    private String phoneNumber;
 
     private String realName;
 
@@ -33,7 +29,7 @@ public class SellerMaterial implements Serializable {
 
     private Date updateTime;
 
-    public SellerMaterial(Integer sellerMaterialId, Integer adminId, Integer sellerId, Integer phoneNumber, String realName, String identityNumber, String identityCardFrontPhoto, String identityCardBackPhoto, String businessLicenseNumber, String businessLicensePhoto, Integer status, Date createTime, Date updateTime) {
+    public SellerMaterial(Integer sellerMaterialId, Integer adminId, Integer sellerId, String phoneNumber, String realName, String identityNumber, String identityCardFrontPhoto, String identityCardBackPhoto, String businessLicenseNumber, String businessLicensePhoto, Integer status, Date createTime, Date updateTime) {
         this.sellerMaterialId = sellerMaterialId;
         this.adminId = adminId;
         this.sellerId = sellerId;
@@ -77,12 +73,12 @@ public class SellerMaterial implements Serializable {
         this.sellerId = sellerId;
     }
 
-    public Integer getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(Integer phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber == null ? null : phoneNumber.trim();
     }
 
     public String getRealName() {

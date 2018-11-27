@@ -1,9 +1,11 @@
 package com.wzyx.controller.admin;
 
+import com.github.pagehelper.StringUtil;
 import com.wzyx.common.ServerResponse;
 import com.wzyx.common.enumration.ResponseCode;
 import com.wzyx.common.enumration.Role;
 import com.wzyx.pojo.User;
+import com.wzyx.service.ISellerMaterialService;
 import com.wzyx.service.IUserService;
 import com.wzyx.util.MD5Utils;
 import net.sf.jsqlparser.schema.Server;
@@ -28,6 +30,9 @@ public class AdminUserController {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private ISellerMaterialService materialService;
+
     /** 管理员使用手机号+密码登录
      *
      * @param phoneNumber
@@ -43,7 +48,7 @@ public class AdminUserController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
 //        要登录的用户的角色应该是管理员
-        ServerResponse response = userService.login(phoneNumber, password, Role.ADMIN.getCode());
+        ServerResponse response = userService.login(phoneNumber, MD5Utils.MD5EncodeUtf8(password), Role.ADMIN.getCode());
 //        把角色的信息存储到session中
         if (response.isSuccess()) {
             session.setAttribute(Role.ADMIN.getDesc(), response.getData());
@@ -188,6 +193,18 @@ public class AdminUserController {
         return userService.resetPassword(currentUser.getUserId(), MD5Utils.MD5EncodeUtf8(oldPassword), MD5Utils.MD5EncodeUtf8(newPassword));
     }
 
+    @RequestMapping(value = "get_audit_material")
+    @ResponseBody
+    public ServerResponse getAuditMaterial(String sellerId, HttpSession session) {
+        User currentUser = (User) session.getAttribute(Role.ADMIN.getDesc());
+        if (currentUser == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        if (StringUtils.isBlank(sellerId)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        return materialService.getMaterialBySellerId(sellerId);
+    }
 
 }
 
