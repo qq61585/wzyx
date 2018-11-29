@@ -7,7 +7,7 @@
 
 
 springmvc
-<form name="form1" action="/mobile/user/update_photo" method="post" enctype="multipart/form-data">
+<form name="form" action="/mobile/user/update_photo" method="post" enctype="multipart/form-data">
     <input type="text" name="authToken">
     <input type="file" name="file" />
     <input type="submit" value="springmvcUploadFile" />
@@ -16,7 +16,10 @@ springmvc
 <hr/>
 
 springmvcOnline
-<form name="form1" action="http://120.79.10.184/mobile/user/update_photo" method="post" enctype="multipart/form-data">
+<hr/>
+action="http://120.79.10.184:8180/mobile/user/update_photo"
+<hr/>
+<form name="form1" action="http://120.79.10.184:8080/mobile/user/update_photo" method="post" enctype="multipart/form-data">
     <input type="text" name="authToken">
     <input type="file" name="file" />
     <input type="submit" value="springmvcUploadFile" />
