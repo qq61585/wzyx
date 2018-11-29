@@ -36,10 +36,10 @@ public class FTPUtil {
         if (connectServer(this.ip, this.port, this.user, this.password)) {
             try {
                 ftpClient.changeWorkingDirectory(remotePath);
-                ftpClient.setBufferSize(1024);
+                ftpClient.setBufferSize(2096);
                 ftpClient.setControlEncoding("UTF-8");
                 ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-                ftpClient.enterLocalPassiveMode();
+//                ftpClient.enterLocalPassiveMode();
                 for (File file : fileList) {
                     fis = new FileInputStream(file);
                     ftpClient.storeFile(file.getName(), fis);

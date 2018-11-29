@@ -2,7 +2,6 @@ package com.wzyx.service.impl;
 
 
 import com.google.common.collect.Lists;
-import com.wzyx.common.ServerResponse;
 import com.wzyx.service.IFileService;
 import com.wzyx.util.FTPUtil;
 import org.slf4j.Logger;
@@ -12,9 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 @Service(value = "iFileService")
@@ -22,6 +18,12 @@ public class FileService implements IFileService {
 
     private static Logger log = LoggerFactory.getLogger(FileService.class);
 
+    /**
+     *
+     * @param file
+     * @param path
+     * @return
+     */
     @Override
     public String uploadFile(MultipartFile file, String path) {
         String fileName = file.getOriginalFilename();
@@ -35,16 +37,20 @@ public class FileService implements IFileService {
         }
 
         File targetFile = new File(path, newFileName);
+        boolean success = false;
         try {
             file.transferTo(targetFile);
-            FTPUtil.uploadFile(Lists.newArrayList(targetFile));
+            success = FTPUtil.uploadFile(Lists.newArrayList(targetFile));
         } catch (IOException e) {
             log.error("上传文件异常",e);
             return null;
         }
 
         targetFile.delete();
-        return targetFile.getName();
+        if (success) {
+            return targetFile.getName();
+        }
+        return null;
     }
 
     /**

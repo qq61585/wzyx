@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -210,10 +211,20 @@ public class UserController {
         return ServerResponse.createByErrorMessage("验证码填写错误");
     }
 
+    /**
+     *  上传头像， 用户通过file或者url来上传头像，不能同时为空
+     * @param request
+     * @param file
+     * @param authToken
+     * @param url
+     * @return
+     */
     @RequestMapping(value = "update_photo", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse updatePhoto(HttpServletRequest request, MultipartFile file, String authToken) {
-            if (StringUtils.isBlank(authToken)) {
+    public ServerResponse updatePhoto(HttpServletRequest request,
+                                      @RequestParam(value = "file") MultipartFile file,
+                                      String authToken, String url) {
+            if (StringUtils.isBlank(authToken) || file.isEmpty() && StringUtils.isBlank(url)) {
                 return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
             }
             String userString = RedisPoolUtil.get(authToken);
@@ -221,8 +232,11 @@ public class UserController {
                 return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
             }
             User user = JsonUtil.str2Object(userString, User.class);
-            String path = request.getServletContext().getRealPath("img");
-            return userService.updatePhoto(user.getUserId(), file, path);
+            if (!file.isEmpty()) {
+                String path = request.getServletContext().getRealPath("img");
+                return userService.updatePhoto(user.getUserId(), file, path);
+            }
+            return userService.updatePhotoByUrl(user.getUserId(), url);
     }
 
 

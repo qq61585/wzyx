@@ -32,4 +32,5 @@ public interface IUserService {
     ServerResponse updatePhoto(Integer userId, MultipartFile file, String path);
 
 
+    ServerResponse updatePhotoByUrl(Integer userId, String url);
 }

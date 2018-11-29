@@ -274,10 +274,22 @@ public class UserService implements IUserService {
         User user = new User();
         user.setUserId(userId);
         String filePath = PropertiesUtil.getProperty("ftp.server.ftp.prefix") + File.separator + result;
-        user.setPhoto(result);
+        user.setPhoto(filePath);
         user.setUpdateTime(new Date());
         userMapper.updateByPrimaryKeySelective(user);
         return ServerResponse.createBySuccessMessage(filePath);
+    }
+
+    @Override
+    public ServerResponse updatePhotoByUrl(Integer userId, String url) {
+        User user = new User();
+        user.setUserId(userId);
+        user.setPhoto(url);
+        int count = userMapper.updateByPrimaryKeySelective(user);
+        if (count == 0) {
+            return ServerResponse.createByErrorMessage("更新头像失败");
+        }
+        return ServerResponse.createBySuccessMessage(url);
     }
 
 
