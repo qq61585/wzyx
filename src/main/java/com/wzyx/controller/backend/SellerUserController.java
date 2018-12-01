@@ -123,30 +123,6 @@ public class SellerUserController {
         return materialService.submitAuditMaterial(phoneNumber, MD5Utils.MD5EncodeUtf8(password), realName,identifyNumber,
                 businessLicenseNumber, files, path);
     }
-
-    /**
-     * 用与测试返回图片的类
-     * @param response
-     * @throws IOException
-     */
-    @RequestMapping(value = "test")
-    public void getPhoto(HttpServletResponse response) throws IOException {
-        String filePath = "/Users/fengjl/Desktop/1.png";
-        FileInputStream fis = new FileInputStream(new File(filePath));
-        int length = fis.available();
-        byte[] buffer = new byte[length];
-        fis.read(buffer, 0, length);
-        fis.close();
-
-        OutputStream out =  response.getOutputStream();
-
-        response.setContentType("image/png");
-        out.write(buffer);
-        out.close();
-    }
-
-
-
 }
 
 

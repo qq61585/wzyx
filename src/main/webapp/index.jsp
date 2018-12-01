@@ -17,7 +17,7 @@ springmvc
 
 springmvcOnline
 <hr/>
-action="http://120.79.10.184:8180/mobile/user/update_photo"
+action="http://120.79.10.184:8080/mobile/user/update_photo"
 <hr/>
 <form name="form1" action="http://120.79.10.184:8080/mobile/user/update_photo" method="post" enctype="multipart/form-data">
     <input type="text" name="authToken">
@@ -25,6 +25,45 @@ action="http://120.79.10.184:8180/mobile/user/update_photo"
     <input type="submit" value="springmvcUploadFile" />
 </form>
 
+
+</body>
+
+springmvcOnline/wzyx
+<hr/>
+action="http://120.79.10.184:8080/wzyx/mobile/user/update_photo"
+<hr/>
+<form name="form1" action="http://120.79.10.184:8080/wzyx/mobile/user/update_photo" method="post" enctype="multipart/form-data">
+    <input type="text" name="authToken">
+    <input type="file" name="file" />
+    <input type="submit" value="springmvcUploadFile" />
+</form>
+
+
+<hr/>
+
+
+springmvcOnline
+<hr/>
+action="http://120.79.10.184:8080/mobile/user/update_photo"
+<hr/>
+<form name="form1" action="http://120.79.10.184:8180/mobile/user/update_photo" method="post" enctype="multipart/form-data">
+    <input type="text" name="authToken">
+    <input type="file" name="file" />
+    <input type="submit" value="springmvcUploadFile" />
+</form>
+
+
+</body>
+
+springmvcOnline/wzyx
+<hr/>
+action="http://120.79.10.184:8080/wzyx/mobile/user/update_photo"
+<hr/>
+<form name="form1" action="http://120.79.10.184:8180/wzyx/mobile/user/update_photo" method="post" enctype="multipart/form-data">
+    <input type="text" name="authToken">
+    <input type="file" name="file" />
+    <input type="submit" value="springmvcUploadFile" />
+</form>
 
 </body>
 </html>

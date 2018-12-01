@@ -41,7 +41,7 @@ public class FileService implements IFileService {
         try {
             file.transferTo(targetFile);
             success = FTPUtil.uploadFile(Lists.newArrayList(targetFile));
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("上传文件异常",e);
             return null;
         }

@@ -20,6 +20,10 @@ public class AuthTokenFilter implements Filter {
 
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) req;
+        if (request.getMethod().equals("logout")) {
+            chain.doFilter(req, resp);
+            return;
+        }
         String authToken = request.getParameter("authToken");
         if (!StringUtils.isBlank(authToken)) {
 //            request中含有authToken字段，那么就更新Redis中的缓存时间

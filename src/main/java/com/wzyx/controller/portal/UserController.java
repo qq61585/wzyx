@@ -223,7 +223,7 @@ public class UserController {
     @ResponseBody
     public ServerResponse updatePhoto(HttpServletRequest request,
                                       @RequestParam(value = "file") MultipartFile file,
-                                      String authToken, String url) {
+                                      @RequestParam(value = "authToken") String authToken, String url) {
             if (StringUtils.isBlank(authToken) || file.isEmpty() && StringUtils.isBlank(url)) {
                 return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
             }
