@@ -25,7 +25,7 @@ public class FileService implements IFileService {
      * @return
      */
     @Override
-    public String uploadFile(MultipartFile file, String path) {
+    public String uploadFile(MultipartFile file, String path,int location) {
         String fileName = file.getOriginalFilename();
         String suffixName = fileName.substring(fileName.lastIndexOf("."));
         String newFileName = UUID.randomUUID().toString() + suffixName;
@@ -39,8 +39,8 @@ public class FileService implements IFileService {
         File targetFile = new File(path, newFileName);
         boolean success = false;
         try {
-            file.transferTo(targetFile);
-            success = FTPUtil.uploadFile(Lists.newArrayList(targetFile));
+            file.transferTo(targetFile);//把文件上传到tomcat服务器下的img文件夹的文件对象
+            success = FTPUtil.uploadFile(Lists.newArrayList(targetFile),location);
         } catch (Exception e) {
             log.error("上传文件异常",e);
             return null;
@@ -60,12 +60,12 @@ public class FileService implements IFileService {
      * @return
      */
     @Override
-    public String[] uploadFiles(MultipartFile[] files, String path) {
+    public String[] uploadFiles(MultipartFile[] files, String path,int location) {
 
         String[] fileNames = new String[files.length];
         int i = 0;
         for (MultipartFile file : files) {
-            fileNames[i++] = uploadFile(file, path);
+            fileNames[i++] = uploadFile(file, path,location);
         }
         return fileNames;
     }

@@ -7,9 +7,11 @@
 
 
 springmvc
-<form name="form" action="/mobile/user/update_photo" method="post" enctype="multipart/form-data">
+<form name="form" action="product/update" method="post" enctype="multipart/form-data">
     <input type="text" name="authToken">
     <input type="file" name="file" />
+    <input type="file" name="files">
+    <input type="file" name="files">
     <input type="submit" value="springmvcUploadFile" />
 </form>
 

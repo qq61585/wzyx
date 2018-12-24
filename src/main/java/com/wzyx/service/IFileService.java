@@ -9,8 +9,8 @@ import java.util.List;
 public interface IFileService {
 
 
-    String uploadFile(MultipartFile file, String path);
+    String uploadFile(MultipartFile file, String path,int location);
 
-    String[] uploadFiles(MultipartFile[] file, String path);
+    String[] uploadFiles(MultipartFile[] file, String path,int location);
 
 }

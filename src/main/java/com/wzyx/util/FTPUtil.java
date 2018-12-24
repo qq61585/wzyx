@@ -21,10 +21,14 @@ public class FTPUtil {
     private static String ftpPassword = PropertiesUtil.getProperty("ftp.password");
 
 
-    public static boolean uploadFile(List<File> fileList) throws IOException {
-        logger.info("开始上传文件件");
+    public static boolean uploadFile(List<File> fileList,int location) throws IOException {
+        logger.info("开始上传文件");
         FTPUtil ftpUtil = new FTPUtil(ftpIP, ftpUser, 21, ftpPassword);
-        boolean success = ftpUtil.uploadFile("img", fileList);
+        boolean success = false;
+        if(location==0)
+        success = ftpUtil.uploadFile("img", fileList);
+        else if(location==1)
+            success = ftpUtil.uploadFile("product_img", fileList);
         logger.info("结束上传文件");
         return success;
     }

@@ -92,10 +92,10 @@
       <if test="accountBalance != null" >
         account_balance,
       </if>
-      <if test="createTime != null" >
+      <if test="true" >
         create_time,
       </if>
-      <if test="updateTime != null" >
+      <if test="true" >
         update_time,
       </if>
       <if test="role != null" >
@@ -142,10 +142,10 @@
       <if test="accountBalance != null" >
         #{accountBalance,jdbcType=DECIMAL},
       </if>
-      <if test="createTime != null" >
+      <if test="true" >
         now(),
       </if>
-      <if test="updateTime != null" >
+      <if test="true" >
         now(),
       </if>
       <if test="role != null" >

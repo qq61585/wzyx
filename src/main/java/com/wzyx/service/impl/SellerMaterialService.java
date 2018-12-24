@@ -56,7 +56,7 @@ public class SellerMaterialService implements ISellerMaterialService {
             return ServerResponse.createByErrorMessage("请登录商家账号");
         }
 //        上传图片
-        String[] fileNames = fileService.uploadFiles(files, path);
+        String[] fileNames = fileService.uploadFiles(files, path,0);
 //        上传成功，将图片的连接存储到数据库中
         SellerMaterial sellerMaterial = new SellerMaterial();
         sellerMaterial.setSellerId(user.getUserId());
