@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wzyx.dao.OrderMapper" >
+  <resultMap id="BaseResultMap" type="com.wzyx.pojo.Order" >
+    <constructor >
+      <idArg column="o_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="o_state" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="o_paytime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="o_payway" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    o_id, user_id, p_id, o_state, o_paytime, create_time, update_time, o_payway
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from wzyx_order
+    where o_id = #{oId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from wzyx_order
+    where o_id = #{oId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wzyx.pojo.Order" >
+    insert into wzyx_order ( o_id, user_id, p_id,
+      o_state, o_paytime, create_time, 
+      update_time, o_payway)
+    values (#{oId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER}, 
+      #{oState,jdbcType=INTEGER}, #{oPaytime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{oPayway,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wzyx.pojo.Order" >
+    insert into wzyx_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="oId != null" >
+        o_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="pId != null" >
+        p_id,
+      </if>
+      <if test="oState != null" >
+        o_state,
+      </if>
+      <if test="oPaytime != null" >
+        o_paytime,
+      </if>
+      <if test="true" >
+        create_time,
+      </if>
+      <if test="true" >
+        update_time,
+      </if>
+      <if test="oPayway != null" >
+        o_payway,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="oId != null" >
+        #{oId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="pId != null" >
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="oState != null" >
+        #{oState,jdbcType=INTEGER},
+      </if>
+      <if test="oPaytime != null" >
+        #{oPaytime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="true" >
+        now(),
+      </if>
+      <if test="true" >
+        now(),
+      </if>
+      <if test="oPayway != null" >
+        #{oPayway,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wzyx.pojo.Order" >
+    update wzyx_order
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="pId != null" >
+        p_id = #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="oState != null" >
+        o_state = #{oState,jdbcType=INTEGER},
+      </if>
+      <if test="oPaytime != null" >
+        o_paytime = #{oPaytime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+      <if test="oPayway != null" >
+        o_payway = #{oPayway,jdbcType=INTEGER},
+      </if>
+    </set>
+    where o_id = #{oId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wzyx.pojo.Order" >
+    update wzyx_order
+    set user_id = #{userId,jdbcType=INTEGER},
+      p_id = #{pId,jdbcType=INTEGER},
+      o_state = #{oState,jdbcType=INTEGER},
+      o_paytime = #{oPaytime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now(),
+      o_payway = #{oPayway,jdbcType=INTEGER}
+    where o_id= #{oId,jdbcType=INTEGER}
+  </update>
+  <select id="selectBy_userId" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from wzyx_order
+where user_id=#{userId,jdbcType=INTEGER} and o_state=#{oState,jdbcType=INTEGER}
+  </select>
+  <select id="seleect_by_userid_pid" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from wzyx_order
+    where user_id=#{userId,jdbcType=INTEGER} and p_id=#{pId,jdbcType=INTEGER}
+  </select>
+</mapper>

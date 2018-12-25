@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wzyx.dao.ProductMapper" >
+  <resultMap id="BaseResultMap" type="com.wzyx.pojo.Product" >
+    <constructor >
+      <idArg column="p_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="p_price" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_content" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_capacity" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="p_longgitude" jdbcType="DOUBLE" javaType="java.lang.Double" />
+      <arg column="p_latitude" jdbcType="DOUBLE" javaType="java.lang.Double" />
+      <arg column="p_location" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="p_state" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_cate" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_imagelist" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="p_starttime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="p_endtime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="p_hasadded" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    p_id, p_name, p_price, p_content, user_id, p_capacity, p_image, p_longgitude, p_latitude,
+    p_location, create_time, update_time, p_state, p_cate, p_imagelist, p_starttime,
+    p_endtime, p_hasadded
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from wzyx_product
+    where p_id = #{pId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from wzyx_product
+    where p_id = #{pId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wzyx.pojo.Product" >
+    insert into wzyx_product (p_id, p_name, p_price,
+      p_content, user_id, p_capacity,
+      p_image, p_longgitude, p_latitude,
+      p_location, create_time, update_time,
+      p_state, p_cate, p_imagelist,
+      p_starttime, p_endtime, p_hasadded
+      )
+    values (#{pId,jdbcType=INTEGER}, #{pName,jdbcType=VARCHAR}, #{pPrice,jdbcType=INTEGER},
+      #{pContent,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{pCapacity,jdbcType=INTEGER},
+      #{pImage,jdbcType=VARCHAR}, #{pLonggitude,jdbcType=DOUBLE}, #{pLatitude,jdbcType=DOUBLE},
+      #{pLocation,jdbcType=VARCHAR}, #{now(),jdbcType=TIMESTAMP},now(),
+      #{pState,jdbcType=INTEGER}, #{pCate,jdbcType=INTEGER}, #{pImagelist,jdbcType=VARCHAR},
+      #{pStarttime,jdbcType=TIMESTAMP}, #{pEndtime,jdbcType=TIMESTAMP}, #{pHasadded,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wzyx.pojo.Product" >
+    insert into wzyx_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pId != null" >
+        p_id,
+      </if>
+      <if test="pName != null" >
+        p_name,
+      </if>
+      <if test="pPrice != null" >
+        p_price,
+      </if>
+      <if test="pContent != null" >
+        p_content,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="pCapacity != null" >
+        p_capacity,
+      </if>
+      <if test="pImage != null" >
+        p_image,
+      </if>
+      <if test="pLonggitude != null" >
+        p_longgitude,
+      </if>
+      <if test="pLatitude != null" >
+        p_latitude,
+      </if>
+      <if test="pLocation != null" >
+        p_location,
+      </if>
+      <if test="true" >
+        create_time,
+      </if>
+      <if test="true" >
+        update_time,
+      </if>
+      <if test="pState != null" >
+        p_state,
+      </if>
+      <if test="pCate != null" >
+        p_cate,
+      </if>
+      <if test="pImagelist != null" >
+        p_imagelist,
+      </if>
+      <if test="pStarttime != null" >
+        p_starttime,
+      </if>
+      <if test="pEndtime != null" >
+        p_endtime,
+      </if>
+      <if test="pHasadded != null" >
+        p_hasadded,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pId != null" >
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="pName != null" >
+        #{pName,jdbcType=VARCHAR},
+      </if>
+      <if test="pPrice != null" >
+        #{pPrice,jdbcType=INTEGER},
+      </if>
+      <if test="pContent != null" >
+        #{pContent,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="pCapacity != null" >
+        #{pCapacity,jdbcType=INTEGER},
+      </if>
+      <if test="pImage != null" >
+        #{pImage,jdbcType=VARCHAR},
+      </if>
+      <if test="pLonggitude != null" >
+        #{pLonggitude,jdbcType=DOUBLE},
+      </if>
+      <if test="pLatitude != null" >
+        #{pLatitude,jdbcType=DOUBLE},
+      </if>
+      <if test="pLocation != null" >
+        #{pLocation,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime = true" >
+        now(),
+      </if>
+      <if test="updateTime = true" >
+        now(),
+      </if>
+      <if test="pState != null" >
+        #{pState,jdbcType=INTEGER},
+      </if>
+      <if test="pCate != null" >
+        #{pCate,jdbcType=INTEGER},
+      </if>
+      <if test="pImagelist != null" >
+        #{pImagelist,jdbcType=VARCHAR},
+      </if>
+      <if test="pStarttime != null" >
+        #{pStarttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pEndtime != null" >
+        #{pEndtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pHasadded != null" >
+        #{pHasadded,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wzyx.pojo.Product" >
+    update wzyx_product
+    <set >
+      <if test="pName != null" >
+        p_name = #{pName,jdbcType=VARCHAR},
+      </if>
+      <if test="pPrice != null" >
+        p_price = #{pPrice,jdbcType=INTEGER},
+      </if>
+      <if test="pContent != null" >
+        p_content = #{pContent,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="pCapacity != null" >
+        p_capacity = #{pCapacity,jdbcType=INTEGER},
+      </if>
+      <if test="pImage != null" >
+        p_image = #{pImage,jdbcType=VARCHAR},
+      </if>
+      <if test="pLonggitude != null" >
+        p_longgitude = #{pLonggitude,jdbcType=DOUBLE},
+      </if>
+      <if test="pLatitude != null" >
+        p_latitude = #{pLatitude,jdbcType=DOUBLE},
+      </if>
+      <if test="pLocation != null" >
+        p_location = #{pLocation,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime = true" >
+        update_time = now(),
+      </if>
+      <if test="pState != null" >
+        p_state = #{pState,jdbcType=INTEGER},
+      </if>
+      <if test="pCate != null" >
+        p_cate = #{pCate,jdbcType=INTEGER},
+      </if>
+      <if test="pImagelist != null" >
+        p_imagelist = #{pImagelist,jdbcType=VARCHAR},
+      </if>
+      <if test="pStarttime != null" >
+        p_starttime = #{pStarttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pEndtime != null" >
+        p_endtime = #{pEndtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pHasadded != null" >
+        p_hasadded = #{pHasadded,jdbcType=INTEGER},
+      </if>
+    </set>
+    where p_id = #{pId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wzyx.pojo.Product" >
+    update wzyx_product
+    set p_name = #{pName,jdbcType=VARCHAR},
+      p_price = #{pPrice,jdbcType=INTEGER},
+      p_content = #{pContent,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=INTEGER},
+      p_capacity = #{pCapacity,jdbcType=INTEGER},
+      p_image = #{pImage,jdbcType=VARCHAR},
+      p_longgitude = #{pLonggitude,jdbcType=DOUBLE},
+      p_latitude = #{pLatitude,jdbcType=DOUBLE},
+      p_location = #{pLocation,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now(),
+      p_state = #{pState,jdbcType=INTEGER},
+      p_cate = #{pCate,jdbcType=INTEGER},
+      p_imagelist = #{pImagelist,jdbcType=VARCHAR},
+      p_starttime = #{pStarttime,jdbcType=TIMESTAMP},
+      p_endtime = #{pEndtime,jdbcType=TIMESTAMP},
+      p_hasadded = #{pHasadded,jdbcType=INTEGER}
+    where p_id = #{pId,jdbcType=INTEGER}
+  </update>
+
+  <select id="scanproduct" parameterType="Integer" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from  wzyx_product
+    where p_id =#{pId,jdbcType=INTEGER}
+
+  </select>
+  <update id="updatestate" parameterType="Integer">
+    update wzyx_product
+    set p_state=0,
+        update_time=now()
+    where p_id =#{pid}
+  </update>
+  <select id="shop_scan" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from wzyx_product
+    where user_id=#{uid,jdbcType=INTEGER} and p_state=#{pState,jdbcType=INTEGER}
+  </select>
+  <select id="search_by_name" parameterType="String" resultMap="BaseResultMap">
+   <bind name="pattern" value="'%'+name+'%'"></bind>
+    select <include refid="Base_Column_List"></include>
+    from wzyx_product
+    where p_name like #{pattern}  or p_content like #{pattern} and p_state!=0
+  </select>
+  <select id="selectByPrimaryKey_Userid" resultMap="BaseResultMap" parameterType="map" >
+    select
+    <include refid="Base_Column_List" />
+    from wzyx_product
+    where p_id = #{pid,jdbcType=INTEGER} and user_id =#{userid,jdbcType=INTEGER}
+  </select>
+  <select id="selectall" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from wzyx_product
+    where p_state!=0
+  </select>
+<select id="slectallby_p_cate" parameterType="INTEGER" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from wzyx_product
+  where p_cate=#{p_cate,jdbcType=INTEGER} and p_state!=0
+</select>
+  <select id="selectby_lalo" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from wzyx_product
+where ROUND(6378.138*2*ASIN(SQRT(POW(SIN((#{longgitude,jdbcType=DOUBLE}*PI()/180-p_latitude*PI()/180)/2),2)+COS(#{longgitude,jdbcType=DOUBLE}*PI()/180)*COS(p_latitude*PI()/180)*POW(SIN((#{latitude,jdbcType=DOUBLE}*PI()/180-p_longgitude*PI()/180)/2),2)))*1000)&lt;=#{distance,jdbcType=INTEGER} and p_state=1
+  </select>
+</mapper>
