@@ -19,6 +19,26 @@ public class Order {
 
     private Integer oPayway;
 
+    private Integer pNumber;
+
+    public Integer getpNumber() {
+        return pNumber;
+    }
+
+    public void setpNumber(Integer pNumber) {
+        this.pNumber = pNumber;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    private double totalPrice;
+
     public Order(Integer oId, Integer userId, Integer pId, Integer oState, Date oPaytime, Date createTime, Date updateTime, Integer oPayway) {
         this.oId = oId;
         this.userId = userId;

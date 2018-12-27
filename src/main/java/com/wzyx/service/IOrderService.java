@@ -9,4 +9,6 @@ public interface IOrderService {
     ServerResponse scan_order(User user,Integer oState, Integer pageNumber, Integer pageSize);
 
     ServerResponse delete_order(User user, Integer oId);
+
+    ServerResponse pay(Integer oId, Integer userId);
 }

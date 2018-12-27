@@ -6,6 +6,8 @@
       <idArg column="o_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="p_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="total_price" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="p_number" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="o_state" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="o_paytime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -14,10 +16,11 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    o_id, user_id, p_id, o_state, o_paytime, create_time, update_time, o_payway
+    o_id, user_id, p_id, total_price, p_number, o_state, o_paytime, create_time, update_time,
+    o_payway
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from wzyx_order
     where o_id = #{oId,jdbcType=INTEGER}
@@ -27,12 +30,14 @@
     where o_id = #{oId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wzyx.pojo.Order" >
-    insert into wzyx_order ( o_id, user_id, p_id,
-      o_state, o_paytime, create_time, 
-      update_time, o_payway)
-    values (#{oId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER}, 
-      #{oState,jdbcType=INTEGER}, #{oPaytime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{oPayway,jdbcType=INTEGER})
+    insert into wzyx_order (o_id, user_id, p_id,
+      total_price, p_number, o_state,
+      o_paytime, create_time, update_time,
+      o_payway)
+    values (#{oId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER},
+      #{totalPrice,jdbcType=INTEGER}, #{pNumber,jdbcType=INTEGER}, #{oState,jdbcType=INTEGER},
+      #{oPaytime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+      #{oPayway,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.wzyx.pojo.Order" >
     insert into wzyx_order
@@ -46,16 +51,22 @@
       <if test="pId != null" >
         p_id,
       </if>
+      <if test="totalPrice != null" >
+        total_price,
+      </if>
+      <if test="pNumber != null" >
+        p_number,
+      </if>
       <if test="oState != null" >
         o_state,
       </if>
       <if test="oPaytime != null" >
         o_paytime,
       </if>
-      <if test="true" >
+      <if test="createTime != null" >
         create_time,
       </if>
-      <if test="true" >
+      <if test="updateTime != null" >
         update_time,
       </if>
       <if test="oPayway != null" >
@@ -72,17 +83,23 @@
       <if test="pId != null" >
         #{pId,jdbcType=INTEGER},
       </if>
+      <if test="totalPrice != null" >
+        #{totalPrice,jdbcType=INTEGER},
+      </if>
+      <if test="pNumber != null" >
+        #{pNumber,jdbcType=INTEGER},
+      </if>
       <if test="oState != null" >
         #{oState,jdbcType=INTEGER},
       </if>
       <if test="oPaytime != null" >
         #{oPaytime,jdbcType=TIMESTAMP},
       </if>
-      <if test="true" >
-        now(),
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="true" >
-        now(),
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="oPayway != null" >
         #{oPayway,jdbcType=INTEGER},
@@ -98,6 +115,12 @@
       <if test="pId != null" >
         p_id = #{pId,jdbcType=INTEGER},
       </if>
+      <if test="totalPrice != null" >
+        total_price = #{totalPrice,jdbcType=INTEGER},
+      </if>
+      <if test="pNumber != null" >
+        p_number = #{pNumber,jdbcType=INTEGER},
+      </if>
       <if test="oState != null" >
         o_state = #{oState,jdbcType=INTEGER},
       </if>
@@ -108,7 +131,7 @@
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null" >
-        update_time = now(),
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="oPayway != null" >
         o_payway = #{oPayway,jdbcType=INTEGER},
@@ -120,21 +143,41 @@
     update wzyx_order
     set user_id = #{userId,jdbcType=INTEGER},
       p_id = #{pId,jdbcType=INTEGER},
+      total_price = #{totalPrice,jdbcType=INTEGER},
+      p_number = #{pNumber,jdbcType=INTEGER},
       o_state = #{oState,jdbcType=INTEGER},
       o_paytime = #{oPaytime,jdbcType=TIMESTAMP},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = now(),
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
       o_payway = #{oPayway,jdbcType=INTEGER}
-    where o_id= #{oId,jdbcType=INTEGER}
+    where o_id = #{oId,jdbcType=INTEGER}
   </update>
+
   <select id="selectBy_userId" parameterType="map" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"></include>
     from wzyx_order
-where user_id=#{userId,jdbcType=INTEGER} and o_state=#{oState,jdbcType=INTEGER}
+    where user_id=#{userId,jdbcType=INTEGER} and o_state=#{oState,jdbcType=INTEGER}
   </select>
   <select id="seleect_by_userid_pid" parameterType="map" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"></include>
     from wzyx_order
     where user_id=#{userId,jdbcType=INTEGER} and p_id=#{pId,jdbcType=INTEGER}
   </select>
+
+  <select id="selectByUserIdAndOrderNo" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from wzyx_order
+    where o_id = #{oId,jdbcType=INTEGER}
+    and user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByOrderNo" resultMap="BaseResultMap" parameterType="int">
+    SELECT
+    <include refid="Base_Column_List">
+    </include>
+    FROM  wzyx_order
+    where o_id = #{oId}
+  </select>
+
 </mapper>

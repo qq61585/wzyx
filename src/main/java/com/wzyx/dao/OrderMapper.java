@@ -21,4 +21,9 @@ public interface OrderMapper {
     List<Order> selectBy_userId(@Param("userId") Integer userId,@Param("oState") Integer oState);
 
     Order seleect_by_userid_pid(@Param("userId") Integer userId, @Param("pId") Integer pId);
+
+    Order selectByUserIdAndOrderNo(@Param("userId") Integer userId, @Param("oId") Integer oId);
+
+    Order selectByOrderNo(Integer oId);
+
 }

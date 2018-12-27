@@ -1,23 +1,37 @@
 package com.wzyx.controller.portal;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.demo.trade.config.Configs;
+import com.wzyx.common.Const;
 import com.wzyx.common.ServerResponse;
 import com.wzyx.common.enumration.ResponseCode;
 import com.wzyx.pojo.User;
 import com.wzyx.service.impl.OrderService;
 import com.wzyx.util.JsonUtil;
 import com.wzyx.util.RedisPoolUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 @Transactional
 @Controller
 @RequestMapping(value = "/order/")
 public class OrderController {
     @Autowired
     private OrderService orderService;
+
+    private Logger logger = LoggerFactory.getLogger(OrderController.class);
     /**
      * 生成订单
      * @param authToken 用户的redis key判断是否登录
@@ -69,4 +83,64 @@ public class OrderController {
         User user = JsonUtil.str2Object(userString,User.class);
         return orderService.delete_order(user,oId);
     }
+
+
+
+
+    //支付
+
+    @RequestMapping(value = "pay_order")
+    @ResponseBody
+    public ServerResponse pay(String authToken, Integer orderNo){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.pay(orderNo,user.getUserId());
+    }
+
+    @RequestMapping("alipay_callback")
+    @ResponseBody
+    public Object alipayCallback(HttpServletRequest request){
+
+        Configs.init("zfbinfo.properties");
+
+        //获取支付宝POST过来反馈信息
+        Map<String,String> params = new HashMap<String,String>();
+        Map requestParams = request.getParameterMap();
+        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
+            String name = (String) iter.next();
+            String[] values = (String[]) requestParams.get(name);
+            String valueStr = "";
+            for (int i = 0; i < values.length; i++) {
+                valueStr = (i == values.length - 1) ? valueStr + values[i]
+                        : valueStr + values[i] + ",";
+            }
+            //乱码解决，这段代码在出现乱码时使用。
+            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+            params.put(name, valueStr);
+        }
+
+        params.remove("sign_type");
+        try {
+
+            boolean alipayRSACheckedV2 = AlipaySignature.rsaCheckV2(params, Configs.getAlipayPublicKey(),"utf-8",Configs.getSignType());
+
+            if(!alipayRSACheckedV2){
+                return ServerResponse.createByErrorMessage("非法请求,验证不通过");
+            }
+        } catch (AlipayApiException e) {
+            logger.error("支付宝验证回调异常",e);
+        }
+        //切记alipaypublickey是支付宝的公钥，请去open.alipay.com对应应用下查看。
+        ServerResponse serverResponse = orderService.aliCallback(params);
+        if(serverResponse.isSuccess()){
+            return Const.AlipayCallback.RESPONSE_SUCCESS;
+        }
+        return Const.AlipayCallback.RESPONSE_FAILED;
+
+    }
+
+
 }
