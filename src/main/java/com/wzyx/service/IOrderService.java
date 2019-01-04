@@ -3,6 +3,8 @@ package com.wzyx.service;
 import com.wzyx.common.ServerResponse;
 import com.wzyx.pojo.User;
 
+import java.util.Map;
+
 public interface IOrderService {
     ServerResponse generate_order(User user, Integer pId);
 
@@ -11,4 +13,6 @@ public interface IOrderService {
     ServerResponse delete_order(User user, Integer oId);
 
     ServerResponse pay(Integer oId, Integer userId);
+
+    public ServerResponse aliCallback(Map<String,String> params);
 }

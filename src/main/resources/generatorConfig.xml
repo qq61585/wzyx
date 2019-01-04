@@ -79,6 +79,7 @@
         <table tableName="wzyx_shoppingcart" domainObjectName="Shoppingcart" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
         <!--table tableName="wzyx_order" domainObjectName="Order" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
 
+
         <!-- mybatis插件的搭建 -->
     </context>
 </generatorConfiguration>

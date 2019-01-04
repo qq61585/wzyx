@@ -89,17 +89,31 @@ public class OrderController {
 
     //支付
 
+    /**
+     * 订单支付
+     *
+     * @param authToken  用户的redis key判断是否登录
+     * @param oId   要支付的订单ID
+     * @return
+     */
     @RequestMapping(value = "pay_order")
     @ResponseBody
-    public ServerResponse pay(String authToken, Integer orderNo){
+    public ServerResponse pay(String authToken, Integer oId){
         String userString = RedisPoolUtil.get(authToken);
         if(userString == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
         User user = JsonUtil.str2Object(userString,User.class);
-        return orderService.pay(orderNo,user.getUserId());
+        return orderService.pay(oId,user.getUserId());
     }
 
+
+    /**
+     * 支付宝回调信息，判断是否支付成功
+     *
+     * @param request
+     * @return
+     */
     @RequestMapping("alipay_callback")
     @ResponseBody
     public Object alipayCallback(HttpServletRequest request){

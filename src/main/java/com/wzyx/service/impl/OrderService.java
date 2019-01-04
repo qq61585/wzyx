@@ -169,6 +169,7 @@ public class OrderService implements IOrderService {
     }
 
 
+    @Override
     public ServerResponse aliCallback(Map<String,String> params){
         Integer oId = Integer.parseInt(params.get("out_trade_no"));
 
