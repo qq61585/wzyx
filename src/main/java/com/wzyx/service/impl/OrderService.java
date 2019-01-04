@@ -123,7 +123,7 @@ public class OrderService implements IOrderService {
      */
     @Override
     public ServerResponse pay(Integer oId, Integer userId) {
-        Map<String, String> resultMap = Maps.newHashMap();
+
         Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
         if (order == null) {
             return ServerResponse.createByErrorMessage("用户没有该订单");
