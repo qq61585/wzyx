@@ -14,5 +14,10 @@ public interface IOrderService {
 
     ServerResponse pay(Integer oId, Integer userId);
 
-    public ServerResponse aliCallback(Map<String,String> params);
+    ServerResponse aliCallback(Map<String,String> params);
+
+    ServerResponse refound(Integer oId, Integer userId,Double refundAmount);
+
+    ServerResponse orderStatus(Integer oId, Integer userId);
+
 }

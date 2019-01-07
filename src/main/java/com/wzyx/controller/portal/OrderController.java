@@ -135,7 +135,7 @@ public class OrderController {
             //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
             params.put(name, valueStr);
         }
-
+        params.remove("sign");
         params.remove("sign_type");
         try {
 
@@ -147,6 +147,8 @@ public class OrderController {
         } catch (AlipayApiException e) {
             logger.error("支付宝验证回调异常",e);
         }
+
+
         //切记alipaypublickey是支付宝的公钥，请去open.alipay.com对应应用下查看。
         ServerResponse serverResponse = orderService.aliCallback(params);
         if(serverResponse.isSuccess()){
@@ -157,4 +159,41 @@ public class OrderController {
     }
 
 
+    /**
+     * 获取订单支付状态
+     * @param authToken
+     * @param oId
+     * @return
+     */
+    @RequestMapping(value = "order_status")
+    @ResponseBody
+    public ServerResponse orderStatus(String authToken, Integer oId){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.orderStatus(oId,user.getUserId());
+    }
+
+
+
+    /**
+     * 支付宝退款
+     * @param authToken  用户的redis key判断是否登录
+     * @param oId   要退款的订单ID
+     * @param refoundAmount 退款金额
+     * @return
+     */
+
+    @RequestMapping("refound")
+    @ResponseBody
+    public ServerResponse refound(String authToken, Integer oId,Double refoundAmount){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.refound(oId,user.getUserId(),refoundAmount);
+    }
 }

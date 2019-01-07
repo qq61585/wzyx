@@ -5,12 +5,14 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.alipay.demo.trade.config.Configs;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+import com.wzyx.common.Const;
 import com.wzyx.common.ServerResponse;
 import com.wzyx.dao.OrderMapper;
 import com.wzyx.dao.ProductMapper;
@@ -23,6 +25,7 @@ import com.wzyx.pojo.User;
 import com.wzyx.service.IOrderService;
 import com.wzyx.util.DateTimeUtil;
 import com.wzyx.vo.OrderVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -91,7 +94,7 @@ public class OrderService implements IOrderService {
             User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
             OrderVo orderVo = new OrderVo(i.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
                     , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber());
-            orderVo.setTotalprice(sc.getsNumber() * product.getpPrice());
+            orderVo.setTotalprice(i.getTotalPrice());
             ov.add(orderVo);
         }
         PageInfo pageInfo = new PageInfo(ov);
@@ -129,6 +132,11 @@ public class OrderService implements IOrderService {
             return ServerResponse.createByErrorMessage("用户没有该订单");
         }
 
+        if(order.getoState()==1){
+            return ServerResponse.createByErrorMessage("订单已支付");
+        }
+
+
         //读取配置文件
         Properties properties = new Properties();
         // 使用InPutStream流读取properties文件
@@ -155,6 +163,8 @@ public class OrderService implements IOrderService {
         model.setTimeoutExpress("30m");
         model.setTotalAmount(String.valueOf(order.getTotalPrice()));
         model.setProductCode(String.valueOf(order.getpId()));
+        Product product = productmapper.selectByPrimaryKey(order.getpId());
+        model.setSellerId(String.valueOf(product.getUserId()));
         request.setBizModel(model);
         request.setNotifyUrl(properties.getProperty("call_back_url"));
         try {
@@ -168,7 +178,11 @@ public class OrderService implements IOrderService {
         return ServerResponse.createByErrorMessage("支付宝支付异常");
     }
 
-
+    /**
+     * 支付宝回调
+     * @param params
+     * @return
+     */
     @Override
     public ServerResponse aliCallback(Map<String,String> params){
         Integer oId = Integer.parseInt(params.get("out_trade_no"));
@@ -180,9 +194,36 @@ public class OrderService implements IOrderService {
         if(order == null){
             return ServerResponse.createByErrorMessage("订单不存在,回调忽略");
         }
+        //验证金额、订单号等信息
         if(order.getoState() == 1){
             return ServerResponse.createBySuccessMessage("订单已支付，支付宝重复调用");
         }
+        if(order.getTotalPrice()!=Math.round(Double.valueOf((params.get("total_amount"))))){
+            return ServerResponse.createByErrorMessage("支付金额错误");
+        }
+        if(order.getUserId()!=Integer.parseInt(params.get("seller_id"))){
+            return ServerResponse.createByErrorMessage("商户不匹配");
+        }
+
+        if(order.getUserId()!=Integer.parseInt(params.get("seller_id"))){
+            return ServerResponse.createByErrorMessage("商户不匹配");
+        }
+
+        //读取配置文件
+        Properties properties = new Properties();
+        // 使用InPutStream流读取properties文件
+        try (InputStreamReader inputStreamReader =new InputStreamReader(OrderService.class.getClassLoader().getResourceAsStream("zfbinfo.properties"),"UTF-8")) {
+            properties.load(inputStreamReader);
+        }catch (Exception e){
+           e.printStackTrace();
+        }
+
+        String appId = properties.getProperty("appid");
+        if(StringUtils.equals(appId,params.get("app_id"))){
+            return ServerResponse.createByErrorMessage("app_id不匹配");
+        }
+
+        //验证成功
         if(com.wzyx.common.Const.AlipayCallback.TRADE_STATUS_TRADE_SUCCESS.equals(tradeStatus)){
             order.setoPaytime(DateTimeUtil.strToDate(params.get("gmt_payment")));
             order.setoState(1);
@@ -190,6 +231,7 @@ public class OrderService implements IOrderService {
             ordermapper.updateByPrimaryKeySelective(order);
         }
 
+        //支付详情页 可选 未实现
        /* PayInfo payInfo = new PayInfo();
         payInfo.setUserId(order.getUserId());
         payInfo.setOrderNo(order.getOrderNo());
@@ -206,35 +248,89 @@ public class OrderService implements IOrderService {
     }
 
 
-    public static void main(String[] args) {
+    /**
+     * 获取订单支付状态
+     * @param oId
+     * @param userId
+     * @return
+     */
+    @Override
+    public ServerResponse orderStatus(Integer oId, Integer userId) {
+
+        Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("用户没有该订单");
+        }
+        if (order.getoState() == Const.OrderStatus.ORDER_PAIED.getCode()) {
+            return ServerResponse.createBySuccess(Const.OrderStatus.ORDER_PAIED.getDesc(), Const.OrderStatus.ORDER_PAIED.getCode());
+        }
+        if (order.getoState() == Const.OrderStatus.ORDER_UNPAIED.getCode()) {
+            return ServerResponse.createBySuccess(Const.OrderStatus.ORDER_UNPAIED.getDesc(), Const.OrderStatus.ORDER_UNPAIED.getCode());
+        }
+        if (order.getoState() == Const.OrderStatus.ORDER_REFOUNDED.getCode()) {
+            return ServerResponse.createBySuccess(Const.OrderStatus.ORDER_REFOUNDED.getDesc(), Const.OrderStatus.ORDER_REFOUNDED.getCode());
+        }
+        return ServerResponse.createBySuccess(Const.OrderStatus.ORDER_DELETED.getDesc(), Const.OrderStatus.ORDER_DELETED.getCode());
+    }
+
+    /**
+     * 退款
+     * @param oId
+     * @param userId
+     * @return
+     */
+    @Override
+    public ServerResponse refound(Integer oId, Integer userId,Double refundAmount) {
+
+        Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("用户没有该订单");
+        }
+        if(order.getTotalPrice()<refundAmount){
+            return ServerResponse.createByErrorMessage("退款金额错误");
+        }
+
+        if (order.getoState() != Const.OrderStatus.ORDER_PAIED.getCode()) {
+            return ServerResponse.createByErrorMessage("订单未支付或已删除");
+        }
+        //读取配置文件
+        Properties properties = new Properties();
+        // 使用InPutStream流读取properties文件
+        try (InputStreamReader inputStreamReader =new InputStreamReader(OrderService.class.getClassLoader().getResourceAsStream("zfbinfo.properties"),"UTF-8")) {
+            properties.load(inputStreamReader);
+        }catch (Exception e){
+            System.out.println(e);
+        }
         // 获取key对应的value值
-        Configs.init("zfbinfo.properties");
-        String serverUrl = Configs.getOpenApiDomain();
-        String appId = Configs.getAppid();
-        String privateKey = Configs.getPrivateKey();
-        String AlipayPublicKey = Configs.getAlipayPublicKey();
+        String serverUrl = properties.getProperty("open_api_domain");
+        String appId = properties.getProperty("appid");
+        String privateKey = properties.getProperty("private_key");
+        String AlipayPublicKey = properties.getProperty("alipay_public_key");
 
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient(serverUrl, appId, privateKey, "json", "utf-8", AlipayPublicKey, "RSA2");
-        //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
-        //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
-        AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
-        model.setBody("万众艺兴");
-        model.setSubject("万众艺兴商品");
-        model.setOutTradeNo("1523");
-        model.setTimeoutExpress("30m");
-        model.setTotalAmount("45");
-        model.setProductCode("45");
-        request.setBizModel(model);
-        request.setNotifyUrl("properties.getProperty(call_back_url)");
+        //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.refund
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+        request.setBizContent("{" +
+                "    \"out_trade_no\":\""+order.getoId().toString()+"\"," +
+                "    \"out_request_no\":\""+refundAmount.toString()+"\"," +
+                "    \"refund_amount\":\""+refundAmount.toString()+"\"" +
+                "  }");//设置业务参数
+        //todo
         try {
-            //这里和普通的接口调用不同，使用的是sdkExecute
-            AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);
-            System.out.println(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
-        } catch (AlipayApiException e) {
+            AlipayTradeRefundResponse response = alipayClient.execute(request);//通过alipayClient调用API，获得对应的response类
+            System.out.print(response.getBody());
+            Order o = new Order();
+            o.setoId(order.getoId());
+            o.setoState(Const.OrderStatus.ORDER_REFOUNDED.getCode());
+            ordermapper.updateByPrimaryKeySelective(o);
+            return ServerResponse.createBySuccessMessage("退款成功");
+            //todo
+        }catch (AlipayApiException e) {
             e.printStackTrace();
         }
+        return ServerResponse.createBySuccessMessage("退款失败");
     }
+
 
 }
