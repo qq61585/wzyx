@@ -19,7 +19,27 @@ public class Order {
 
     private Integer oPayway;
 
-    public Order(Integer oId, Integer userId, Integer pId, Integer oState, Date oPaytime, Date createTime, Date updateTime, Integer oPayway) {
+    private Integer pNumber;
+
+    public Integer getpNumber() {
+        return pNumber;
+    }
+
+    public void setpNumber(Integer pNumber) {
+        this.pNumber = pNumber;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    private double totalPrice;
+
+    public Order(Integer oId, Integer userId, Integer pId,Double totalPrice,Integer pNumber, Integer oState, Date oPaytime, Date createTime, Date updateTime, Integer oPayway) {
         this.oId = oId;
         this.userId = userId;
         this.pId = pId;
@@ -28,6 +48,8 @@ public class Order {
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.oPayway = oPayway;
+        this.totalPrice=totalPrice;
+        this.pNumber=pNumber;
     }
 
     public Order() {
