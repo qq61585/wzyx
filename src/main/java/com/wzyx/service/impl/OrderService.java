@@ -178,6 +178,25 @@ public class OrderService implements IOrderService {
         return ServerResponse.createByErrorMessage("支付宝支付异常");
     }
 
+    @Override
+    public ServerResponse setOrderStatus(Integer oId, Integer userId,Integer status) {
+
+        Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("用户没有该订单");
+        }
+        Order o = new Order();
+        o.setoId(order.getoId());
+        o.setoState(status);
+        int result = ordermapper.updateByPrimaryKeySelective(o);
+        if(result>0){
+            return ServerResponse.createBySuccessMessage("订单状态修改成功");
+        }
+        return ServerResponse.createByErrorMessage("订单状态修改失败");
+
+    }
+
+
     /**
      * 支付宝回调
      * @param params

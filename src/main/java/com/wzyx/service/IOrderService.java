@@ -20,4 +20,7 @@ public interface IOrderService {
 
     ServerResponse orderStatus(Integer oId, Integer userId);
 
+    ServerResponse setOrderStatus(Integer oId, Integer userId,Integer status);
+
+
 }

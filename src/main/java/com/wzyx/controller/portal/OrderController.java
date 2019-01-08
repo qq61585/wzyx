@@ -108,6 +108,17 @@ public class OrderController {
     }
 
 
+    @RequestMapping(value = "set_order_status")
+    @ResponseBody
+    public ServerResponse setOrderStatus(String authToken, Integer oId,Integer status){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.setOrderStatus(oId,user.getUserId(),status);
+    }
+
     /**
      * 支付宝回调信息，判断是否支付成功
      *
