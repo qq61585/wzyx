@@ -63,7 +63,7 @@ public class OrderService implements IOrderService {
         Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), pId);
         User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
         OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber());
+                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),null);
         orderVo.setTotalprice(sc.getsNumber() * product.getpPrice());
 
         //订单中加入商品数量和下单时的价格
@@ -78,13 +78,16 @@ public class OrderService implements IOrderService {
      * 查看订单
      *
      * @param user       用户
-     * @param oState     要查看的订单种类 0:待支付 1 已支付 -1已删除
+     * @param oState     要查看的订单种类 0:待支付 1 待参与 -1已删除
      * @param pageNumber 页数
      * @param pageSize   每页有几条
      * @return
      */
     @Override
     public ServerResponse scan_order(User user, Integer oState, Integer pageNumber, Integer pageSize) {
+        ordermapper.updateallproduct();
+        ordermapper.updateallproduct1();
+        ordermapper.updateallproduct2();
         List<Order> od = ordermapper.selectBy_userId(user.getUserId(), oState);
         PageHelper.startPage(pageNumber, pageSize);
         List<OrderVo> ov = new ArrayList<>();
@@ -92,8 +95,9 @@ public class OrderService implements IOrderService {
             Product product = productmapper.selectByPrimaryKey(i.getpId());
             Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), i.getpId());
             User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
+            String paytime = DateTimeUtil.dateToStr(i.getoPaytime());
             OrderVo orderVo = new OrderVo(i.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber());
+                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime);
             orderVo.setTotalprice(i.getTotalPrice());
             ov.add(orderVo);
         }

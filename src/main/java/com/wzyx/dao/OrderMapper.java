@@ -26,4 +26,10 @@ public interface OrderMapper {
 
     Order selectByOrderNo(Integer oId);
 
+    void updateallproduct();//更新待评价  原状态为1且 已超时   更新为2
+
+    void updateallproduct1();//更新已过期  原装状态为0 时间也超时 更新为 3
+
+    void updateallproduct2(); //更新已完成   原状态为2 且时间也超时  更新为7
+
 }

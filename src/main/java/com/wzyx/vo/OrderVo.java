@@ -21,6 +21,16 @@ private double totalprice;//总价
 private String image;//商品图片
 private Integer cate;//商品分类
 
+    public String getO_paytime() {
+        return o_paytime;
+    }
+
+    public void setO_paytime(String o_paytime) {
+        this.o_paytime = o_paytime;
+    }
+
+    private  String o_paytime;//商品支付时间
+
     public String getUser_name() {
         return user_name;
     }
@@ -97,7 +107,7 @@ private Integer cate;//商品分类
     public OrderVo() {
     }
 
-    public OrderVo(Integer o_id,String user_name,String phone_number,String shop_name, String product_name,double price,String image,Integer cate,Integer s_number) {
+    public OrderVo(Integer o_id,String user_name,String phone_number,String shop_name, String product_name,double price,String image,Integer cate,Integer s_number,String o_paytime) {
         this.o_id = o_id;
         this.user_name = user_name;
         this.phone_number = phone_number;
@@ -107,6 +117,7 @@ private Integer cate;//商品分类
         this.image = image;
         this.cate = cate;
         this.s_number = s_number;
+        this.o_paytime = o_paytime;
     }
 
 }
