@@ -61,9 +61,10 @@ public class OrderService implements IOrderService {
         Order o = ordermapper.seleect_by_userid_pid(user.getUserId(), pId);
         Product product = productmapper.selectByPrimaryKey(pId);
         Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), pId);
+        String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
         User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
         OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),null);
+                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),null,createtime);
         orderVo.setTotalprice(sc.getsNumber() * product.getpPrice());
 
         //订单中加入商品数量和下单时的价格
@@ -94,10 +95,11 @@ public class OrderService implements IOrderService {
         for (Order i : od) {
             Product product = productmapper.selectByPrimaryKey(i.getpId());
             Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), i.getpId());
+            String createtime =DateTimeUtil.dateToStr(i.getCreateTime());
             User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
             String paytime = DateTimeUtil.dateToStr(i.getoPaytime());
             OrderVo orderVo = new OrderVo(i.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime);
+                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime);
             orderVo.setTotalprice(i.getTotalPrice());
             ov.add(orderVo);
         }
@@ -197,6 +199,20 @@ public class OrderService implements IOrderService {
             return ServerResponse.createBySuccessMessage("订单状态修改成功");
         }
         return ServerResponse.createByErrorMessage("订单状态修改失败");
+
+    }
+
+    @Override
+    public ServerResponse order_detailed(User user, Integer oId) {
+        Order o = ordermapper.selectByUserIdAndOrderNo(user.getUserId(),oId);
+        Product product = productmapper.selectByPrimaryKey(o.getpId());
+        Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), o.getpId());
+        User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
+        String paytime = DateTimeUtil.dateToStr(o.getoPaytime());
+        String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
+        OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
+                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime);
+        orderVo.setTotalprice(o.getTotalPrice());
 
     }
 

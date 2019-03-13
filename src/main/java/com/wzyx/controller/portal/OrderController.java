@@ -67,7 +67,15 @@ public class OrderController {
         User user = JsonUtil.str2Object(userString,User.class);
         return orderService.scan_order(user,oState,pageNumber,pageSize);
     }
-
+@RequestMapping("/order_detailed")
+@ResponseBody
+public ServerResponse order_detailed(String authToken,Integer oId){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString==null)
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.order_detailed(user,oId);
+}
     /**
      * 删除订单
      * @param authToken  用户的redis key判断是否登录

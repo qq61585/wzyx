@@ -23,4 +23,5 @@ public interface IOrderService {
     ServerResponse setOrderStatus(Integer oId, Integer userId,Integer status);
 
 
+    ServerResponse order_detailed(User user, Integer oId);
 }
