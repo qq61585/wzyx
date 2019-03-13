@@ -62,9 +62,10 @@ public class OrderService implements IOrderService {
         Product product = productmapper.selectByPrimaryKey(pId);
         Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), pId);
         String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
+        String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
         User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
         OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),null,createtime);
+                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),null,createtime,product.getpLocation(),product.getpContent(),p_starttime);
         orderVo.setTotalprice(sc.getsNumber() * product.getpPrice());
 
         //订单中加入商品数量和下单时的价格
@@ -98,8 +99,9 @@ public class OrderService implements IOrderService {
             String createtime =DateTimeUtil.dateToStr(i.getCreateTime());
             User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
             String paytime = DateTimeUtil.dateToStr(i.getoPaytime());
+            String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
             OrderVo orderVo = new OrderVo(i.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime);
+                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
             orderVo.setTotalprice(i.getTotalPrice());
             ov.add(orderVo);
         }
@@ -210,8 +212,9 @@ public class OrderService implements IOrderService {
         User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
         String paytime = DateTimeUtil.dateToStr(o.getoPaytime());
         String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
+        String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
         OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime);
+                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
         orderVo.setTotalprice(o.getTotalPrice());
 
     }
