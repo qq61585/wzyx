@@ -58,7 +58,7 @@ public class OrderController {
      */
     @RequestMapping(value = "scan_order")
     @ResponseBody
-    public ServerResponse scan_order(String authToken,Integer oState,
+    public ServerResponse scan_order(String authToken,@RequestParam(value = "oState")Integer oState,
                                      @RequestParam(value = "pageNumber",defaultValue = "1") Integer pageNumber,
                                      @RequestParam(value = "pageSize",defaultValue = "10") Integer pageSize){
         String userString = RedisPoolUtil.get(authToken);
@@ -113,6 +113,24 @@ public ServerResponse order_detailed(String authToken,Integer oId){
         }
         User user = JsonUtil.str2Object(userString,User.class);
         return orderService.pay(oId,user.getUserId());
+    }
+
+    /**
+     * 订单假支付
+     *
+     * @param authToken  用户的redis key判断是否登录
+     * @param orderId   要支付的订单ID
+     * @return
+     */
+    @RequestMapping(value = "pay_order_fake")
+    @ResponseBody
+    public ServerResponse pay_fake(String authToken, Integer orderId,int paymentMethod){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.pay_fake(orderId,user.getUserId(),paymentMethod);
     }
 
 
@@ -200,19 +218,18 @@ public ServerResponse order_detailed(String authToken,Integer oId){
     /**
      * 支付宝退款
      * @param authToken  用户的redis key判断是否登录
-     * @param oId   要退款的订单ID
-     * @param refoundAmount 退款金额
+     * @param orderId   要退款的订单ID
      * @return
      */
 
-    @RequestMapping("refound")
+    @RequestMapping("refound_order")
     @ResponseBody
-    public ServerResponse refound(String authToken, Integer oId,Double refoundAmount){
+    public ServerResponse refound(String authToken, Integer orderId){
         String userString = RedisPoolUtil.get(authToken);
         if(userString == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
         User user = JsonUtil.str2Object(userString,User.class);
-        return orderService.refound(oId,user.getUserId(),refoundAmount);
+        return orderService.refound(orderId,user.getUserId());
     }
 }

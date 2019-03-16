@@ -14,9 +14,11 @@ public interface IOrderService {
 
     ServerResponse pay(Integer oId, Integer userId);
 
+    ServerResponse pay_fake(Integer oId, Integer userId,int paymentMethod);
+
     ServerResponse aliCallback(Map<String,String> params);
 
-    ServerResponse refound(Integer oId, Integer userId,Double refundAmount);
+    ServerResponse refound(Integer oId, Integer userId);
 
     ServerResponse orderStatus(Integer oId, Integer userId);
 
