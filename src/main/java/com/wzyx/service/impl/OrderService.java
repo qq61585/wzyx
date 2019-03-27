@@ -124,6 +124,32 @@ public class OrderService implements IOrderService {
         return ServerResponse.createBySuccessMessage("删除成功");
     }
 
+    /**
+     * 支付订单
+     *
+     * @param oId  订单ID
+     * @param userId 用户ID
+     * @return
+     */
+    @Override
+    public ServerResponse pay_fake(Integer oId, Integer userId,int paymentMethod) {
+
+        Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("用户没有该订单");
+        }
+
+        if (order.getoState() == 1) {
+            return ServerResponse.createByErrorMessage("订单已支付");
+        }
+        order.setoPaytime(new Date());
+        order.setoState(1);
+        order.setoPayway(paymentMethod);
+        ordermapper.updateByPrimaryKeySelective(order);
+        return ServerResponse.createBySuccessMessage("支付成功");
+
+    }
+
 
     /**
      * 支付订单
@@ -201,7 +227,6 @@ public class OrderService implements IOrderService {
             return ServerResponse.createBySuccessMessage("订单状态修改成功");
         }
         return ServerResponse.createByErrorMessage("订单状态修改失败");
-
     }
 
     @Override
@@ -322,16 +347,12 @@ public class OrderService implements IOrderService {
      * @return
      */
     @Override
-    public ServerResponse refound(Integer oId, Integer userId,Double refundAmount) {
+    public ServerResponse refound(Integer oId, Integer userId) {
 
         Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
         if (order == null) {
             return ServerResponse.createByErrorMessage("用户没有该订单");
         }
-        if(order.getTotalPrice()<refundAmount){
-            return ServerResponse.createByErrorMessage("退款金额错误");
-        }
-
         if (order.getoState() != Const.OrderStatus.ORDER_PAIED.getCode()) {
             return ServerResponse.createByErrorMessage("订单未支付或已删除");
         }
@@ -355,8 +376,8 @@ public class OrderService implements IOrderService {
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
         request.setBizContent("{" +
                 "    \"out_trade_no\":\""+order.getoId().toString()+"\"," +
-                "    \"out_request_no\":\""+refundAmount.toString()+"\"," +
-                "    \"refund_amount\":\""+refundAmount.toString()+"\"" +
+                "    \"out_request_no\":\""+String.valueOf(order.getTotalPrice())+"\"," +
+                "    \"refund_amount\":\""+String.valueOf(order.getTotalPrice())+"\"" +
                 "  }");//设置业务参数
         //todo
         try {
@@ -373,6 +394,4 @@ public class OrderService implements IOrderService {
         }
         return ServerResponse.createBySuccessMessage("退款失败");
     }
-
-
 }
