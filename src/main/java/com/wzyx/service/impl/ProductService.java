@@ -59,7 +59,6 @@ public class ProductService implements IProductService {
         if(latitude!=100)//如果没勾选设定维度值为100
             list = productmapper.selectby_lalo(longgitude,latitude,distance);
         PageHelper.startPage(pageNumber, pageSize);
-        PageInfo pageInfo = new PageInfo();
         if (p_sort == 0) //按时间顺序排序
         {
             list.sort(new Comparator<Product>() {
@@ -91,7 +90,7 @@ public class ProductService implements IProductService {
             productVo.setpImagelist(imagelist);
             productVoList.add(productVo);
         }
-        pageInfo.setList(productVoList);
+        PageInfo pageInfo = new PageInfo(productVoList);
         return ServerResponse.createBySuccessData(pageInfo);
     }
 
