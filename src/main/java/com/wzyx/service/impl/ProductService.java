@@ -82,7 +82,16 @@ public class ProductService implements IProductService {
                 }
             });
         }
-        pageInfo.setList(list);
+        List<ProductVo>  productVoList = new ArrayList<ProductVo>();
+        for(Product p:list){
+            String t = p.getpImagelist();
+            String[] save  = t.split("#");
+            List<String> imagelist = Arrays.asList(save);
+            ProductVo productVo = new ProductVo(p);
+            productVo.setpImagelist(imagelist);
+            productVoList.add(productVo);
+        }
+        pageInfo.setList(productVoList);
         return ServerResponse.createBySuccessData(pageInfo);
     }
 
