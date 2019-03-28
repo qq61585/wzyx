@@ -45,7 +45,7 @@ public class JsonUtil {
      * @param <T>
      * @return
      */
-    public static <T> String  obj2String (T obj) {
+    public static <T> String  1obj2String (T obj) {
         if (obj == null) {
             return null;
         }

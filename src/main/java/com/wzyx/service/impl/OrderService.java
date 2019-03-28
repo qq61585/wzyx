@@ -61,9 +61,11 @@ public class OrderService implements IOrderService {
         Order o = ordermapper.seleect_by_userid_pid(user.getUserId(), pId);
         Product product = productmapper.selectByPrimaryKey(pId);
         Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), pId);
+        String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
+        String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
         User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
         OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber());
+                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),null,createtime,product.getpLocation(),product.getpContent(),p_starttime);
         orderVo.setTotalprice(sc.getsNumber() * product.getpPrice());
 
         //订单中加入商品数量和下单时的价格
@@ -78,22 +80,28 @@ public class OrderService implements IOrderService {
      * 查看订单
      *
      * @param user       用户
-     * @param oState     要查看的订单种类 0:待支付 1 已支付 -1已删除
+     * @param oState     要查看的订单种类 0:待支付 1 待参与 -1已删除
      * @param pageNumber 页数
      * @param pageSize   每页有几条
      * @return
      */
     @Override
     public ServerResponse scan_order(User user, Integer oState, Integer pageNumber, Integer pageSize) {
+        ordermapper.updateallproduct();
+        ordermapper.updateallproduct1();
+        ordermapper.updateallproduct2();
         List<Order> od = ordermapper.selectBy_userId(user.getUserId(), oState);
         PageHelper.startPage(pageNumber, pageSize);
         List<OrderVo> ov = new ArrayList<>();
         for (Order i : od) {
             Product product = productmapper.selectByPrimaryKey(i.getpId());
             Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), i.getpId());
+            String createtime =DateTimeUtil.dateToStr(i.getCreateTime());
             User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
+            String paytime = DateTimeUtil.dateToStr(i.getoPaytime());
+            String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
             OrderVo orderVo = new OrderVo(i.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber());
+                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
             orderVo.setTotalprice(i.getTotalPrice());
             ov.add(orderVo);
         }
@@ -114,6 +122,32 @@ public class OrderService implements IOrderService {
         order.setoState(-1);
         ordermapper.updateByPrimaryKeySelective(order);
         return ServerResponse.createBySuccessMessage("删除成功");
+    }
+
+    /**
+     * 支付订单
+     *
+     * @param oId  订单ID
+     * @param userId 用户ID
+     * @return
+     */
+    @Override
+    public ServerResponse pay_fake(Integer oId, Integer userId,int paymentMethod) {
+
+        Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("用户没有该订单");
+        }
+
+        if (order.getoState() == 1) {
+            return ServerResponse.createByErrorMessage("订单已支付");
+        }
+        order.setoPaytime(new Date());
+        order.setoState(1);
+        order.setoPayway(paymentMethod);
+        ordermapper.updateByPrimaryKeySelective(order);
+        return ServerResponse.createBySuccessMessage("支付成功");
+
     }
 
 
@@ -177,6 +211,39 @@ public class OrderService implements IOrderService {
         }
         return ServerResponse.createByErrorMessage("支付宝支付异常");
     }
+
+    @Override
+    public ServerResponse setOrderStatus(Integer oId, Integer userId,Integer status) {
+
+        Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("用户没有该订单");
+        }
+        Order o = new Order();
+        o.setoId(order.getoId());
+        o.setoState(status);
+        int result = ordermapper.updateByPrimaryKeySelective(o);
+        if(result>0){
+            return ServerResponse.createBySuccessMessage("订单状态修改成功");
+        }
+        return ServerResponse.createByErrorMessage("订单状态修改失败");
+    }
+
+    @Override
+    public ServerResponse order_detailed(User user, Integer oId) {
+        Order o = ordermapper.selectByUserIdAndOrderNo(user.getUserId(),oId);
+        Product product = productmapper.selectByPrimaryKey(o.getpId());
+        Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), o.getpId());
+        User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
+        String paytime = DateTimeUtil.dateToStr(o.getoPaytime());
+        String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
+        String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
+        OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
+                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
+        orderVo.setTotalprice(o.getTotalPrice());
+        return ServerResponse.createBySuccessData(orderVo);
+    }
+
 
     /**
      * 支付宝回调
@@ -280,16 +347,12 @@ public class OrderService implements IOrderService {
      * @return
      */
     @Override
-    public ServerResponse refound(Integer oId, Integer userId,Double refundAmount) {
+    public ServerResponse refound(Integer oId, Integer userId) {
 
         Order order = ordermapper.selectByUserIdAndOrderNo(userId, oId);
         if (order == null) {
             return ServerResponse.createByErrorMessage("用户没有该订单");
         }
-        if(order.getTotalPrice()<refundAmount){
-            return ServerResponse.createByErrorMessage("退款金额错误");
-        }
-
         if (order.getoState() != Const.OrderStatus.ORDER_PAIED.getCode()) {
             return ServerResponse.createByErrorMessage("订单未支付或已删除");
         }
@@ -313,8 +376,8 @@ public class OrderService implements IOrderService {
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
         request.setBizContent("{" +
                 "    \"out_trade_no\":\""+order.getoId().toString()+"\"," +
-                "    \"out_request_no\":\""+refundAmount.toString()+"\"," +
-                "    \"refund_amount\":\""+refundAmount.toString()+"\"" +
+                "    \"out_request_no\":\""+String.valueOf(order.getTotalPrice())+"\"," +
+                "    \"refund_amount\":\""+String.valueOf(order.getTotalPrice())+"\"" +
                 "  }");//设置业务参数
         //todo
         try {
@@ -331,6 +394,4 @@ public class OrderService implements IOrderService {
         }
         return ServerResponse.createBySuccessMessage("退款失败");
     }
-
-
 }

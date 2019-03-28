@@ -156,7 +156,7 @@
   <select id="selectBy_userId" parameterType="map" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"></include>
     from wzyx_order
-    where user_id=#{userId,jdbcType=INTEGER} and o_state=#{oState,jdbcType=INTEGER}
+    where user_id=#{userId,jdbcType=INTEGER} and o_state=#{oState}
   </select>
   <select id="seleect_by_userid_pid" parameterType="map" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"></include>
@@ -179,5 +179,19 @@
     FROM  wzyx_order
     where o_id = #{oId}
   </select>
-
+<select id="updateallproduct">
+  update wzyx_order a
+  set o_state=2
+where o_state=1 and now()> (select x.p_endtime from wzyx_product x where a.p_id =x.p_id)
+</select>
+  <select id="updateallproduct1">
+    update wzyx_order a
+    set o_state=3
+    where o_state=1 and now()> (select x.p_endtime from wzyx_product x where a.p_id =x.p_id)
+  </select>
+  <select id="updateallproduct2">
+    update wzyx_order a
+    set o_state=7
+    where o_state=2 and now()> (select x.p_endtime from wzyx_product x where a.p_id =x.p_id)
+  </select>
 </mapper>

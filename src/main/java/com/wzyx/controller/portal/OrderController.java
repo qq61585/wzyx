@@ -58,7 +58,7 @@ public class OrderController {
      */
     @RequestMapping(value = "scan_order")
     @ResponseBody
-    public ServerResponse scan_order(String authToken,Integer oState,
+    public ServerResponse scan_order(String authToken,@RequestParam(value = "oState")Integer oState,
                                      @RequestParam(value = "pageNumber",defaultValue = "1") Integer pageNumber,
                                      @RequestParam(value = "pageSize",defaultValue = "10") Integer pageSize){
         String userString = RedisPoolUtil.get(authToken);
@@ -67,7 +67,15 @@ public class OrderController {
         User user = JsonUtil.str2Object(userString,User.class);
         return orderService.scan_order(user,oState,pageNumber,pageSize);
     }
-
+@RequestMapping("/order_detailed")
+@ResponseBody
+public ServerResponse order_detailed(String authToken,Integer oId){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString==null)
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.order_detailed(user,oId);
+}
     /**
      * 删除订单
      * @param authToken  用户的redis key判断是否登录
@@ -107,6 +115,35 @@ public class OrderController {
         return orderService.pay(oId,user.getUserId());
     }
 
+    /**
+     * 订单假支付
+     *
+     * @param authToken  用户的redis key判断是否登录
+     * @param orderId   要支付的订单ID
+     * @return
+     */
+    @RequestMapping(value = "pay_order_fake")
+    @ResponseBody
+    public ServerResponse pay_fake(String authToken, Integer orderId,int paymentMethod){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.pay_fake(orderId,user.getUserId(),paymentMethod);
+    }
+
+
+    @RequestMapping(value = "set_order_status")
+    @ResponseBody
+    public ServerResponse setOrderStatus(String authToken, Integer oId,Integer status){
+        String userString = RedisPoolUtil.get(authToken);
+        if(userString == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        User user = JsonUtil.str2Object(userString,User.class);
+        return orderService.setOrderStatus(oId,user.getUserId(),status);
+    }
 
     /**
      * 支付宝回调信息，判断是否支付成功
@@ -181,19 +218,18 @@ public class OrderController {
     /**
      * 支付宝退款
      * @param authToken  用户的redis key判断是否登录
-     * @param oId   要退款的订单ID
-     * @param refoundAmount 退款金额
+     * @param orderId   要退款的订单ID
      * @return
      */
 
-    @RequestMapping("refound")
+    @RequestMapping("refound_order")
     @ResponseBody
-    public ServerResponse refound(String authToken, Integer oId,Double refoundAmount){
+    public ServerResponse refound(String authToken, Integer orderId){
         String userString = RedisPoolUtil.get(authToken);
         if(userString == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
         User user = JsonUtil.str2Object(userString,User.class);
-        return orderService.refound(oId,user.getUserId(),refoundAmount);
+        return orderService.refound(orderId,user.getUserId());
     }
 }
