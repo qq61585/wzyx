@@ -69,7 +69,7 @@ public class UserService implements IUserService {
         //返回用户信息给前端前，置空密码, 生成随机的AUTH_TOKEN,将用户信息Json序列化，存入到Redis缓存中
         user.setPassword(null);
         String authToken = UUID.randomUUID().toString();
-        String userStr = JsonUtil.obj20String(user);
+        String userStr = JsonUtil.obj2String(user);
         RedisPoolUtil.setEx(authToken, userStr, RedisExpireTime.USER_EXPIRE_TIME.getTime());
         return ServerResponse.createBySuccess(authToken, user);
     }
