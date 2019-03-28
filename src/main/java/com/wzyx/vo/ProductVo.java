@@ -36,19 +36,19 @@ public class ProductVo {
 
     private List<String> pImagelist;
 
-    public Date getpStarttime() {
+    public String getpStarttime() {
         return pStarttime;
     }
 
-    public void setpStarttime(Date pStarttime) {
+    public void setpStarttime(String pStarttime) {
         this.pStarttime = pStarttime;
     }
 
-    public Date getpEndtime() {
+    public String getpEndtime() {
         return pEndtime;
     }
 
-    public void setpEndtime(Date pEndtime) {
+    public void setpEndtime(String pEndtime) {
         this.pEndtime = pEndtime;
     }
 
@@ -60,9 +60,9 @@ public class ProductVo {
         this.pHasadded = pHasadded;
     }
 
-    private Date pStarttime;
+    private String pStarttime;
 
-    private Date pEndtime;
+    private String pEndtime;
 
     private Integer pHasadded;
 
@@ -81,8 +81,6 @@ public class ProductVo {
         this.pState = p.getpState();
         this.pCate = p.getpCate();
         this.pContent = p.getpContent();
-        this.pStarttime = p.getpStarttime();
-        this.pEndtime = p.getpEndtime();
         this.pHasadded = p.getpHasadded();
     }
 
