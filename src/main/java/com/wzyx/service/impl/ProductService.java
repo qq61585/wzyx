@@ -12,6 +12,7 @@ import com.wzyx.pojo.Product;
 import com.wzyx.pojo.Shoppingcart;
 import com.wzyx.pojo.User;
 import com.wzyx.service.IProductService;
+import com.wzyx.util.DateTimeUtil;
 import com.wzyx.util.PropertiesUtil;
 import com.wzyx.vo.ProductVo;
 import com.wzyx.vo.ShoppingcartVo;
@@ -58,7 +59,6 @@ public class ProductService implements IProductService {
             list = productmapper.slectallby_p_cate(p_cate);
         if(latitude!=100)//如果没勾选设定维度值为100
             list = productmapper.selectby_lalo(longgitude,latitude,distance);
-        PageHelper.startPage(pageNumber, pageSize);
         if (p_sort == 0) //按时间顺序排序
         {
             list.sort(new Comparator<Product>() {
@@ -83,13 +83,18 @@ public class ProductService implements IProductService {
         }
         List<ProductVo>  productVoList = new ArrayList<ProductVo>();
         for(Product p:list){
+            String s_time = DateTimeUtil.dateToStr(p.getpStarttime());
+            String e_time = DateTimeUtil.dateToStr(p.getpEndtime());
             String t = p.getpImagelist();
             String[] save  = t.split("#");
             List<String> imagelist = Arrays.asList(save);
             ProductVo productVo = new ProductVo(p);
             productVo.setpImagelist(imagelist);
+            productVo.setpStarttime(s_time);
+            productVo.setpEndtime(e_time);
             productVoList.add(productVo);
         }
+        PageHelper.startPage(pageNumber, pageSize);
         PageInfo pageInfo = new PageInfo(productVoList);
         return ServerResponse.createBySuccessData(pageInfo);
     }
