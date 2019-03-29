@@ -69,7 +69,7 @@ public class UserService implements IUserService {
         //返回用户信息给前端前，置空密码, 生成随机的AUTH_TOKEN,将用户信息Json序列化，存入到Redis缓存中
         user.setPassword(null);
         String authToken = UUID.randomUUID().toString();
-        String userStr = JsonUtil.obj20String(user);
+        String userStr = JsonUtil.obj2String(user);
         RedisPoolUtil.setEx(authToken, userStr, RedisExpireTime.USER_EXPIRE_TIME.getTime());
         return ServerResponse.createBySuccess(authToken, user);
     }
@@ -268,7 +268,7 @@ public class UserService implements IUserService {
     public ServerResponse updatePhoto(Integer userId, MultipartFile file, String path) {
         String result = null;
         try {
-            result = fileService.uploadFile(file, path,0);
+            result = fileService.uploadFile(file, path);
         } catch (Exception e) {
             return ServerResponse.createByErrorMessage("更新图片失败");
         }
@@ -333,6 +333,13 @@ public class UserService implements IUserService {
         return userVo;
     }
 
+    public void setUserMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    public UserMapper getUserMapper() {
+        return userMapper;
+    }
 }
 
 
