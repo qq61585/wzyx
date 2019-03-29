@@ -20,8 +20,13 @@ public class VerificationCodeUtil {
         for (int i = 0; i < 6; i++) {
             stringBuilder.append(random.nextInt(10));
         }
-        SMSUtil.sendSms(phoneNumber, stringBuilder.toString());
+        TencentSMSUtil.sendSMS(phoneNumber, stringBuilder.toString());
+//        SMSUtil.sendSms(phoneNumber, stringBuilder.toString());
         return stringBuilder.toString();
+    }
+
+    public static void main(String[] args) {
+        sendVerificationCode("18629501095");
     }
 
 
