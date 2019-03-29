@@ -268,7 +268,7 @@ public class UserService implements IUserService {
     public ServerResponse updatePhoto(Integer userId, MultipartFile file, String path) {
         String result = null;
         try {
-            result = fileService.uploadFile(file, path,0);
+            result = fileService.uploadFile(file, path);
         } catch (Exception e) {
             return ServerResponse.createByErrorMessage("更新图片失败");
         }
@@ -333,6 +333,13 @@ public class UserService implements IUserService {
         return userVo;
     }
 
+    public void setUserMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    public UserMapper getUserMapper() {
+        return userMapper;
+    }
 }
 
 

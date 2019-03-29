@@ -286,8 +286,21 @@ public class ProductService implements IProductService {
     @Override
     public ServerResponse search_by_name(String name, Integer pageNumber, Integer pageSize) {
         List<Product> list= productmapper.search_by_name(name);
+        List<ProductVo>  productVoList = new ArrayList<ProductVo>();
+        for(Product p:list){
+            String t = p.getpImagelist();
+            String s_time = DateTimeUtil.dateToStr(p.getpStarttime());
+            String e_time = DateTimeUtil.dateToStr(p.getpEndtime());
+            String[] save  = t.split("#");
+            List<String> imagelist = Arrays.asList(save);
+            ProductVo productVo = new ProductVo(p);
+            productVo.setpStarttime(s_time);
+            productVo.setpEndtime(e_time);
+            productVo.setpImagelist(imagelist);
+            productVoList.add(productVo);
+        }
         PageHelper.startPage(pageNumber,pageSize);
-        PageInfo pageInfo = new PageInfo(list);
+        PageInfo pageInfo = new PageInfo(productVoList);
         return ServerResponse.createBySuccessData(pageInfo);
     }
 
