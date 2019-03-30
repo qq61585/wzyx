@@ -46,31 +46,32 @@ public class OrderService implements IOrderService {
     private OrderMapper ordermapper;
 
     /**
-     * 生成订单
-     *
-     * @param user 用户
-     * @param pId  商品ID
+     * 生成发订单
+     * @param user
+     * @param eventId
+     * @param purchaseCount
+     * @param eventSeason
      * @return
      */
     @Override
-    public ServerResponse generate_order(User user, Integer pId) {
+    public ServerResponse generate_order(User user, Integer eventId,Integer purchaseCount ,String eventSeason) {
         Order order = new Order();
         order.setoState(0);
         order.setUserId(user.getUserId());
-        order.setpId(pId);
-        Order o = ordermapper.seleect_by_userid_pid(user.getUserId(), pId);
-        Product product = productmapper.selectByPrimaryKey(pId);
-        Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), pId);
-        String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
-        String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
-        User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
-        OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),null,createtime,product.getpLocation(),product.getpContent(),p_starttime);
-        orderVo.setTotalprice(sc.getsNumber() * product.getpPrice());
+        order.setpId(eventId);
+       // Order o = ordermapper.seleect_by_userid_pid(user.getUserId(), eventId);
+        Product product = productmapper.selectByPrimaryKey(eventId);
+        String createtime =DateTimeUtil.dateToStr(new Date());
+        String p_starttime = eventSeason;
+         User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
+        OrderVo orderVo = new OrderVo( user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
+                , product.getpPrice(), product.getpImage(), product.getpCate(),purchaseCount,null,createtime,product.getpLocation(),product.getpContent(),p_starttime);
+        orderVo.setTotalprice(purchaseCount* product.getpPrice());
 
         //订单中加入商品数量和下单时的价格
         order.setTotalPrice(orderVo.getTotalprice());
-        order.setpNumber(sc.getsNumber());
+        order.setpNumber(purchaseCount);
+        order.setCreateTime(DateTimeUtil.strToDate(createtime));
         ordermapper.insertSelective(order);
 
         return ServerResponse.createBySuccessData(orderVo);
@@ -91,20 +92,19 @@ public class OrderService implements IOrderService {
         ordermapper.updateallproduct1();
         ordermapper.updateallproduct2();
         List<Order> od = ordermapper.selectBy_userId(user.getUserId(), oState);
-        PageHelper.startPage(pageNumber, pageSize);
         List<OrderVo> ov = new ArrayList<>();
         for (Order i : od) {
             Product product = productmapper.selectByPrimaryKey(i.getpId());
-            Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), i.getpId());
             String createtime =DateTimeUtil.dateToStr(i.getCreateTime());
             User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
             String paytime = DateTimeUtil.dateToStr(i.getoPaytime());
             String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
-            OrderVo orderVo = new OrderVo(i.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                    , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
+            OrderVo orderVo = new OrderVo( user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
+                    , product.getpPrice(), product.getpImage(), product.getpCate(),i.getpNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
             orderVo.setTotalprice(i.getTotalPrice());
             ov.add(orderVo);
         }
+        PageHelper.startPage(pageNumber, pageSize);
         PageInfo pageInfo = new PageInfo(ov);
         return ServerResponse.createBySuccessData(pageInfo);
     }
@@ -233,13 +233,12 @@ public class OrderService implements IOrderService {
     public ServerResponse order_detailed(User user, Integer oId) {
         Order o = ordermapper.selectByUserIdAndOrderNo(user.getUserId(),oId);
         Product product = productmapper.selectByPrimaryKey(o.getpId());
-        Shoppingcart sc = shoppingcart.selectby_uid_and_pid(user.getUserId(), o.getpId());
         User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
         String paytime = DateTimeUtil.dateToStr(o.getoPaytime());
         String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
         String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
-        OrderVo orderVo = new OrderVo(o.getoId(), user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), sc.getsNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
+        OrderVo orderVo = new OrderVo( user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
+                , product.getpPrice(), product.getpImage(), product.getpCate(), o.getpNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
         orderVo.setTotalprice(o.getTotalPrice());
         return ServerResponse.createBySuccessData(orderVo);
     }

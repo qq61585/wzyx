@@ -268,7 +268,7 @@ public class UserService implements IUserService {
     public ServerResponse updatePhoto(Integer userId, MultipartFile file, String path) {
         String result = null;
         try {
-            result = fileService.uploadFile(file, path);
+            result = fileService.uploadFile(file, path,0);
         } catch (Exception e) {
             return ServerResponse.createByErrorMessage("更新图片失败");
         }

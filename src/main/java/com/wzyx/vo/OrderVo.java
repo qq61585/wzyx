@@ -3,7 +3,6 @@ package com.wzyx.vo;
 import java.util.Date;
 
 public class OrderVo {
-    private Integer o_id;
 private String user_name; //客户名字
 private String phone_number; //客户手机号码
 private String shop_name; //商家名字
@@ -17,13 +16,6 @@ private Integer cate;//商品分类
     private String product_location;
     private String product_content;
     private String product_starttime;
-    public Integer getO_id() {
-        return o_id;
-    }
-
-    public void setO_id(Integer o_id) {
-        this.o_id = o_id;
-    }
 
     public String getO_paytime() {
         return o_paytime;
@@ -108,9 +100,8 @@ private Integer cate;//商品分类
     public OrderVo() {
     }
 
-    public OrderVo(Integer o_id,String user_name,String phone_number,String shop_name, String product_name,double price,String image,Integer cate,Integer s_number,String o_paytime,String o_createtime
+    public OrderVo(String user_name,String phone_number,String shop_name, String product_name,double price,String image,Integer cate,Integer s_number,String o_paytime,String o_createtime
     ,String product_location,String product_content,String product_starttime) {
-        this.o_id = o_id;
         this.user_name = user_name;
         this.phone_number = phone_number;
         this.shop_name = shop_name;

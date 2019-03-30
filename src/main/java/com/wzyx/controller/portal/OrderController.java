@@ -40,12 +40,12 @@ public class OrderController {
      */
     @RequestMapping(value = "gen_order")
     @ResponseBody
-    public ServerResponse generate_order(String authToken, Integer pId){
+    public ServerResponse generate_order(String authToken, Integer eventId,Integer purchaseCount ,String eventSeason){
         String userString = RedisPoolUtil.get(authToken);
         if(userString == null)
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         User user = JsonUtil.str2Object(userString,User.class);
-        return  orderService.generate_order(user,pId);
+        return  orderService.generate_order(user,eventId,purchaseCount,eventSeason);
     }
 
     /**

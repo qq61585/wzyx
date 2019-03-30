@@ -6,7 +6,7 @@ import com.wzyx.pojo.User;
 import java.util.Map;
 
 public interface IOrderService {
-    ServerResponse generate_order(User user, Integer pId);
+    ServerResponse generate_order(User user, Integer eventId,Integer purchaseCount ,String eventSeason);
 
     ServerResponse scan_order(User user,Integer oState, Integer pageNumber, Integer pageSize);
 
