@@ -32,10 +32,13 @@ public class OrderController {
     private OrderService orderService;
 
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
+
     /**
-     * 生成订单
+     * * 生成订单
      * @param authToken 用户的redis key判断是否登录
-     * @param pId 商品ID
+     * @param eventId
+     * @param purchaseCount
+     * @param eventSeason
      * @return
      */
     @RequestMapping(value = "gen_order")
@@ -58,7 +61,7 @@ public class OrderController {
      */
     @RequestMapping(value = "scan_order")
     @ResponseBody
-    public ServerResponse scan_order(String authToken,@RequestParam(value = "oState")Integer oState,
+    public ServerResponse scan_order(String authToken,@RequestParam(value = "oState",required = false)Integer oState ,
                                      @RequestParam(value = "pageNumber",defaultValue = "1") Integer pageNumber,
                                      @RequestParam(value = "pageSize",defaultValue = "10") Integer pageSize){
         String userString = RedisPoolUtil.get(authToken);

@@ -88,9 +88,6 @@ public class OrderService implements IOrderService {
      */
     @Override
     public ServerResponse scan_order(User user, Integer oState, Integer pageNumber, Integer pageSize) {
-        ordermapper.updateallproduct();
-        ordermapper.updateallproduct1();
-        ordermapper.updateallproduct2();
         List<Order> od = ordermapper.selectBy_userId(user.getUserId(), oState);
         List<OrderVo> ov = new ArrayList<>();
         for (Order i : od) {
