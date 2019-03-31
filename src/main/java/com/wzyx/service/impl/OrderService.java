@@ -59,17 +59,20 @@ public class OrderService implements IOrderService {
         order.setoState(0);
         order.setUserId(user.getUserId());
         order.setpId(eventId);
+        order.setoPayway(0);
        // Order o = ordermapper.seleect_by_userid_pid(user.getUserId(), eventId);
         Product product = productmapper.selectByPrimaryKey(eventId);
         String createtime =DateTimeUtil.dateToStr(new Date());
         String p_starttime = eventSeason;
          User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
-        OrderVo orderVo = new OrderVo( user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(),purchaseCount,null,createtime,product.getpLocation(),product.getpContent(),p_starttime);
-        orderVo.setTotalprice(purchaseCount* product.getpPrice());
+        String single_price = String.format("%.2f",(double)product.getpPrice());
+        OrderVo orderVo = new OrderVo(user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
+                , single_price, product.getpImage(), product.getpCate(),purchaseCount,null,createtime,product.getpLocation(),product.getpContent(),p_starttime);
+        String price = String.format("%.2f",purchaseCount* product.getpPrice());
+        orderVo.setTotalprice(price);
 
         //订单中加入商品数量和下单时的价格
-        order.setTotalPrice(orderVo.getTotalprice());
+        order.setTotalPrice(purchaseCount* product.getpPrice());
         order.setpNumber(purchaseCount);
         order.setCreateTime(DateTimeUtil.strToDate(createtime));
         ordermapper.insertSelective(order);
@@ -96,9 +99,11 @@ public class OrderService implements IOrderService {
             User shopUser = userMapper.selectByPrimaryKey(product.getUserId());
             String paytime = DateTimeUtil.dateToStr(i.getoPaytime());
             String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
-            OrderVo orderVo = new OrderVo( user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                    , product.getpPrice(), product.getpImage(), product.getpCate(),i.getpNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
-            orderVo.setTotalprice(i.getTotalPrice());
+            String single_price = String.format("%.2f",(double)product.getpPrice());
+            OrderVo orderVo = new OrderVo(user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
+                    ,single_price, product.getpImage(), product.getpCate(),i.getpNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime,i.getoId(),i.getoState(),product.getpId(),i.getoPayway());
+            String price = String.format("%.2f",i.getTotalPrice());
+            orderVo.setTotalprice(price);
             ov.add(orderVo);
         }
         PageHelper.startPage(pageNumber, pageSize);
@@ -234,9 +239,11 @@ public class OrderService implements IOrderService {
         String paytime = DateTimeUtil.dateToStr(o.getoPaytime());
         String createtime =DateTimeUtil.dateToStr(o.getCreateTime());
         String p_starttime = DateTimeUtil.dateToStr(product.getpStarttime());
+        String single_price = String.format("%.2f",product.getpPrice());
         OrderVo orderVo = new OrderVo( user.getUserName(), user.getPhoneNumber(), shopUser.getUserName(), product.getpName()
-                , product.getpPrice(), product.getpImage(), product.getpCate(), o.getpNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
-        orderVo.setTotalprice(o.getTotalPrice());
+                , single_price, product.getpImage(), product.getpCate(), o.getpNumber(),paytime,createtime,product.getpLocation(),product.getpContent(),p_starttime);
+        String price = String.format("%.2f",o.getTotalPrice());
+        orderVo.setTotalprice(price);
         return ServerResponse.createBySuccessData(orderVo);
     }
 
